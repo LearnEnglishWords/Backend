@@ -1,6 +1,6 @@
 package com.learnenglish.models
 
-open class ErrorState(val code: Int?, val type: String?, val message: String?) : BaseModel(id = null)
+open class ErrorState(val code: Int? = null, val type: String? = null, val message: String? = null) : BaseModel(id = null)
 
 open class BaseModel(
     var id: Long? = null

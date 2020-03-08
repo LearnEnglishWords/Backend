@@ -19,9 +19,10 @@ CREATE TABLE IF NOT EXISTS `categories` (
 
 CREATE TABLE IF NOT EXISTS `words` (
   `id` mediumint(9) UNSIGNED NOT NULL AUTO_INCREMENT,
-  `name` varchar(50) NOT NULL,
+  `text` varchar(50) NOT NULL,
   `pronunciation` varchar(50) NOT NULL,
-  `data` JSON NOT NULL,
+  `sense` JSON NOT NULL,
+  `examples` JSON NOT NULL,
   PRIMARY KEY (`id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8;
 

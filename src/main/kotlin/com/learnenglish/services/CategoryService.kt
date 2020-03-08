@@ -36,6 +36,15 @@ interface CategoryDao {
 
     @SqlUpdate("delete from categories where id=:id")
     fun remove(@Bind("id") id: Long)
+
+    //@SqlQuery("select * from categories_words where wordId=:wordId and categoryId=:categoryId")
+    //fun containWord(@Bind("categoryId") categoryId: Long, @Bind("wordId") wordId: Long)
+
+    @SqlUpdate("insert into categories_words (wordId, categoryId) values(:wordId, :categoryId)")
+    fun addWord(@Bind("categoryId") categoryId: Long, @Bind("wordId") wordId: Long): Int
+
+    @SqlUpdate("delete from categories_words where wordId=:wordId and categoryId=:categoryId")
+    fun removeWord(@Bind("categoryId") categoryId: Long, @Bind("wordId") wordId: Long): Int
 }
 
 @Singleton
@@ -84,9 +93,39 @@ class CategoryService {
         }
     }
 
+    fun containWord(categoryId: Long, wordId: Long): Boolean {
+        //db.onDemand<CategoryDao>().containWord(categoryId, wordId)
+        return db.withHandle<Boolean, Exception> {
+            it.select("select * from categories_words where wordId=:wordId and categoryId=:categoryId")
+                .bind("categoryId", categoryId)
+                .bind("wordId", wordId)
+                .mapToMap()
+                .list()
+                .size > 0
+        }
+    }
+
     fun delete(id: Long): Boolean {
         return try {
             db.onDemand<CategoryDao>().remove(id)
+            true
+        } catch (e: Exception) {
+            false
+        }
+    }
+
+    fun addWord(categoryId: Long, wordId: Long): Boolean {
+        return try {
+            db.onDemand<CategoryDao>().addWord(categoryId, wordId)
+            true
+        } catch (e: Exception) {
+            false
+        }
+    }
+
+    fun removeWord(categoryId: Long, wordId: Long): Boolean {
+        return try {
+            db.onDemand<CategoryDao>().removeWord(categoryId, wordId)
             true
         } catch (e: Exception) {
             false

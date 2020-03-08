@@ -16,8 +16,8 @@ import javax.validation.Valid
 @Controller("/collections")
 @Secured(SecurityRule.IS_ANONYMOUS)
 class CollectionController(
-        private val collectionService: CollectionService,
-        private val categoryService: CategoryService
+    private val collectionService: CollectionService,
+    private val categoryService: CategoryService
 ) {
 
     @Get("/")
