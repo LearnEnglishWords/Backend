@@ -13,14 +13,14 @@ import com.learnenglish.services.CategoryService
 import javax.validation.Valid
 
 @Validated
-@Controller("/collections")
+@Controller("/collection")
 @Secured(SecurityRule.IS_ANONYMOUS)
 class CollectionController(
     private val collectionService: CollectionService,
     private val categoryService: CategoryService
 ) {
 
-    @Get("/")
+    @Get("/list")
     @Produces(MediaType.APPLICATION_JSON)
     fun getList(): HttpResponse<List<Collection>> {
         return HttpResponse.ok(collectionService.findAll())

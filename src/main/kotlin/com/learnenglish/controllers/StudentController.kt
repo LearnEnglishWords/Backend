@@ -11,11 +11,11 @@ import com.learnenglish.models.Student
 import javax.validation.Valid
 
 @Validated
-@Controller("/students")
+@Controller("/student")
 @Secured(SecurityRule.IS_AUTHENTICATED)
 class StudentController(private val studentService: StudentService) {
 
-    @Get("/")
+    @Get("/list")
     @Produces(MediaType.APPLICATION_JSON)
     fun students(): HttpResponse<List<Student>> {
         return HttpResponse.ok(studentService.findAll())

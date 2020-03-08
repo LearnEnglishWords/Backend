@@ -15,7 +15,7 @@ import com.learnenglish.models.User
 import javax.validation.Valid
 
 @Validated
-@Controller("/users")
+@Controller("/user")
 @Secured(SecurityRule.IS_ANONYMOUS)
 class UserController(private val userService: UserService) {
 

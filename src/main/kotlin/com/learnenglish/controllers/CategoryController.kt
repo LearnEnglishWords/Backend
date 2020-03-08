@@ -13,14 +13,14 @@ import com.learnenglish.services.WordService
 import javax.validation.Valid
 
 @Validated
-@Controller("/categories")
+@Controller("/category")
 @Secured(SecurityRule.IS_ANONYMOUS)
 class CategoryController(
     private val wordService: WordService,
     private val categoryService: CategoryService
 ) : BaseController() {
 
-    @Get("/")
+    @Get("/list")
     @Produces(MediaType.APPLICATION_JSON)
     fun getAll(): HttpResponse<Response> {
         val categories = categoryService.findAll()

@@ -12,11 +12,11 @@ import com.learnenglish.models.ErrorState
 import javax.validation.Valid
 
 @Validated
-@Controller("/words")
+@Controller("/word")
 @Secured(SecurityRule.IS_ANONYMOUS)
 class WordController(private val wordService: WordService) : BaseController() {
 
-    @Get("/")
+    @Get("/list")
     @Produces(MediaType.APPLICATION_JSON)
     fun getAll(): HttpResponse<Response> {
         val words = wordService.findAll()
