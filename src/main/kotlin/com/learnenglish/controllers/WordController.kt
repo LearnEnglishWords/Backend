@@ -9,6 +9,7 @@ import io.micronaut.validation.Validated
 import com.learnenglish.services.WordService
 import com.learnenglish.models.Word
 import com.learnenglish.models.ErrorState
+import sun.plugin2.message.Message
 import javax.validation.Valid
 
 @Validated
@@ -62,5 +63,32 @@ class WordController(private val wordService: WordService) : BaseController() {
 
         wordService.delete(word.id!!)
         return HttpResponse.ok()
+    }
+
+    @Get("/parse/{wordText}")
+    @Consumes(MediaType.APPLICATION_JSON)
+    fun parse(wordText: String): HttpResponse<Response> {
+        if(!"[a-z]\\w+".toRegex().matches(wordText)) return HttpResponse.badRequest(
+            Response( status = Status.BAD_REQUEST.code, error = ErrorState(message = "You can use only [a-z] characters."))
+        )
+        val word = wordService.parse(wordText)
+
+        return HttpResponse.ok(
+            Response(status = Status.OK.code, payload = word)
+        )
+    }
+
+    @Get("/find/{wordText}")
+    @Consumes(MediaType.APPLICATION_JSON)
+    fun find(wordText: String): HttpResponse<Response> {
+        if(!"[a-z]\\w+".toRegex().matches(wordText)) return HttpResponse.badRequest(
+            Response( status = Status.BAD_REQUEST.code, error = ErrorState(message = "You can use only [a-z] characters."))
+        )
+
+        val word = wordService.findByText(wordText) ?: wordService.parse(wordText)
+
+        return HttpResponse.ok(
+                Response(status = Status.OK.code, payload = word)
+        )
     }
 }

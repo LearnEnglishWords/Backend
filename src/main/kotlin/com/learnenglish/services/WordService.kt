@@ -4,8 +4,21 @@ import com.learnenglish.config.DbConfig
 import com.learnenglish.models.BaseModel
 import com.learnenglish.models.Word
 import com.learnenglish.models.ErrorState
+import it.skrape.core.htmlDocument
+import it.skrape.extract
+import it.skrape.extractIt
+import it.skrape.selects.and
+import it.skrape.selects.eachText
+import it.skrape.selects.html5.span
+import it.skrape.selects.html5.strong
+import it.skrape.skrape
 import javax.inject.Singleton
 
+
+fun List<String>.getToIndex(num: Int) = this.let {
+    val size = if (it.size > num) num else it.size
+    it.subList(0, size)
+}
 
 @Singleton
 class WordService {
@@ -77,6 +90,21 @@ class WordService {
         }
     }
 
+    fun findByText(wordText: String): Word? {
+        return try {
+            db.withHandle<Word, Exception> {
+                it.select("select * from words where text=:wordText")
+                        .bind("wordText", wordText)
+                        .mapToMap()
+                        .list()
+                        .firstOrNull()
+                        ?.let { Word.parse(it) }
+            }
+        } catch (e: Exception) {
+            null
+        }
+    }
+
     fun findById(id: Long): Word? {
         return try {
             db.withHandle<Word, Exception> {
@@ -103,5 +131,41 @@ class WordService {
         } catch (e: Exception) {
             false
         }
+    }
+
+    fun parse(wordText: String): Word {
+        val word = skrape {
+            url = "https://dictionary.cambridge.org/dictionary/english/$wordText"
+
+            extractIt<Word> {
+                htmlDocument {
+                    span {  withClass = "eg" and "deg"
+                        findAll {
+                            it.examples = eachText().getToIndex(6)
+                        }
+                    }
+                    span {  withClass = "ipa" and "dipa" and "lpr-2" and "lpl-1"
+                        it.pronunciation = findFirst { text }
+                    }
+                    span {  withClass = "hw" and "dhw"
+                        it.text = findFirst { text }
+                    }
+                }
+            }
+        }
+        word.sense = skrape {
+            url = "https://glosbe.com/en/cs/$wordText"
+
+            extract {
+                htmlDocument {
+                    strong {  withClass = "phr"
+                        findAll {
+                            eachText().getToIndex(10)
+                        }
+                    }
+                }
+            }
+        }
+        return word
     }
 }
