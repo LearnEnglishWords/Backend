@@ -4,13 +4,6 @@ import com.learnenglish.config.DbConfig
 import com.learnenglish.models.BaseModel
 import com.learnenglish.models.Word
 import com.learnenglish.models.ErrorState
-import org.jdbi.v3.sqlobject.config.RegisterBeanMapper
-import org.jdbi.v3.sqlobject.customizer.Bind
-import org.jdbi.v3.sqlobject.customizer.BindBean
-import org.jdbi.v3.sqlobject.kotlin.BindKotlin
-import org.jdbi.v3.sqlobject.statement.GetGeneratedKeys
-import org.jdbi.v3.sqlobject.statement.SqlQuery
-import org.jdbi.v3.sqlobject.statement.SqlUpdate
 import javax.inject.Singleton
 
 

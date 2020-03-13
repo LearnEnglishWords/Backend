@@ -4,6 +4,7 @@ import com.learnenglish.parseList
 import javax.validation.constraints.NotBlank
 import javax.validation.constraints.Size
 
+
 data class Word(
     @get:NotBlank(message = "Text is required")
     @get:Size(min = 3, max = 50)
