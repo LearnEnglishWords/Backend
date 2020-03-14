@@ -4,6 +4,8 @@ micronaut:
     name: learn-english-words
   server:
     port: 8080
+    cors:
+      enabled: true
 
 ---
 micronaut:
@@ -22,11 +24,11 @@ micronaut:
             generator:
               secret: "${JWT_GENERATOR_SIGNATURE_SECRET:YOUD__DKJ&*@#1kljdkjlkdLKJDkd0kdkjkdjJJNLQPUYVM}"
 
----
-#datasources.default: {}
----
-micronaut:
-  io:
-    watch:
-      paths: src/main
-      restart: true
+#---
+##datasources.default: {}
+#---
+#micronaut:
+#  io:
+#    watch:
+#      paths: src/main
+#      restart: true

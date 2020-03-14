@@ -26,7 +26,7 @@ class WordService {
 
     fun create(word: Word): BaseModel? {
         try {
-            word.id = db.withHandle<Long, Exception> {
+            db.withHandle<Long, Exception> {
                 it.createUpdate("insert into words (text, pronunciation, sense, examples) values(:text, :pronunciation, JSON_ARRAY(:sense), JSON_ARRAY(:examples))")
                     .bind("text", word.text)
                     .bind("pronunciation", word.pronunciation)

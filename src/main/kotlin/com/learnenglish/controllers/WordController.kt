@@ -9,7 +9,6 @@ import io.micronaut.validation.Validated
 import com.learnenglish.services.WordService
 import com.learnenglish.models.Word
 import com.learnenglish.models.ErrorState
-import sun.plugin2.message.Message
 import javax.validation.Valid
 
 @Validated
@@ -72,6 +71,7 @@ class WordController(private val wordService: WordService) : BaseController() {
             Response( status = Status.BAD_REQUEST.code, error = ErrorState(message = "You can use only [a-z] characters."))
         )
         val word = wordService.parse(wordText)
+        wordService.create(word)
 
         return HttpResponse.ok(
             Response(status = Status.OK.code, payload = word)
@@ -91,4 +91,20 @@ class WordController(private val wordService: WordService) : BaseController() {
                 Response(status = Status.OK.code, payload = word)
         )
     }
+
+    @Post("/import")
+    @Consumes(MediaType.TEXT_PLAIN)
+    fun importWords(@Body words: String): HttpResponse<Response> {
+        val result: MutableList<Word> = mutableListOf()
+        val wordsList = words.split("\n")
+
+        for (word in wordsList) {
+            result.add(wordService.create(Word(text = word)) as Word)
+        }
+
+        return HttpResponse.ok(
+            Response(status = Status.OK.code, payload = result)
+        )
+    }
+
 }
