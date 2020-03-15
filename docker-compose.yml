@@ -1,0 +1,17 @@
+version: '3'
+services:
+  backend:
+    #image: applemann/lew-backend
+    build: .
+    ports:
+    - "8080:8080"
+    external_links:
+    - database
+  database:
+    image: mysql:8
+    ports:
+    - "3306:3306"
+    environment:
+    - MYSQL_ROOT_PASSWORD=test1
+
+
