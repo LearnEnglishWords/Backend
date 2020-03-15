@@ -11,7 +11,7 @@ CREATE TABLE IF NOT EXISTS `collections` (
 
 CREATE TABLE IF NOT EXISTS `categories` (
   `id` mediumint(9) UNSIGNED NOT NULL AUTO_INCREMENT,
-  `collectionId` smallint(5) UNSIGNED NOT NULL,
+  `collection_id` smallint(5) UNSIGNED NOT NULL,
   `name` varchar(50) NOT NULL,
   PRIMARY KEY (`id`),
   FOREIGN KEY (`collectionId`) REFERENCES collections(id)
@@ -28,8 +28,8 @@ CREATE TABLE IF NOT EXISTS `words` (
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8;
 
 CREATE TABLE IF NOT EXISTS `categories_words` (
-  `wordId` mediumint(9) UNSIGNED NOT NULL,
-  `categoryId` mediumint(9) UNSIGNED NOT NULL,
+  `word_id` mediumint(9) UNSIGNED NOT NULL,
+  `category_id` mediumint(9) UNSIGNED NOT NULL,
   FOREIGN KEY (`wordId`) REFERENCES words(id),
   FOREIGN KEY (`categoryId`) REFERENCES categories(id)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8;

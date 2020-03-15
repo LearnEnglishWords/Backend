@@ -76,8 +76,8 @@ class WordService {
             db.withHandle<List<Category>, Exception> {
                 it.select("""
                     select * from categories_words cw 
-                    join categories c on cw.categoryId=c.id 
-                    where cw.wordId=:wordId
+                    join categories c on cw.category_id=c.id 
+                    where cw.word_id=:wordId
                 """)
                     .bind("wordId", wordId)
                     .mapToMap()
@@ -94,8 +94,8 @@ class WordService {
             db.withHandle<List<Word>, Exception> {
                 it.select("""
                     select * from categories_words cw 
-                    join words w on cw.wordId=w.id 
-                    where cw.categoryId=:categoryId
+                    join words w on cw.word_id=w.id 
+                    where cw.category_id=:categoryId
                 """)
                 .bind("categoryId", categoryId)
                 .mapToMap()

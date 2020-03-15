@@ -16,7 +16,7 @@ import java.sql.SQLIntegrityConstraintViolationException
 import javax.inject.Singleton
 
 interface CategoryDao {
-    @SqlUpdate("insert into categories (name, collectionId) values(:name, :collectionId)")
+    @SqlUpdate("insert into categories (name, collection_id) values(:name, :collectionId)")
     @GetGeneratedKeys
     fun insert(@BindBean category: Category): Long
 
@@ -27,7 +27,7 @@ interface CategoryDao {
     @RegisterBeanMapper(Category::class)
     fun findAll(): List<Category>
 
-    @SqlQuery("select * from categories where collectionId=:collectionId")
+    @SqlQuery("select * from categories where collection_id=:collectionId")
     @RegisterBeanMapper(Category::class)
     fun findAllByCollection(@Bind("collectionId") collectionId: Long): List<Category>
 
@@ -40,10 +40,10 @@ interface CategoryDao {
     //@SqlQuery("select * from categories_words where wordId=:wordId and categoryId=:categoryId")
     //fun containWord(@Bind("categoryId") categoryId: Long, @Bind("wordId") wordId: Long)
 
-    @SqlUpdate("insert into categories_words (wordId, categoryId) values(:wordId, :categoryId)")
+    @SqlUpdate("insert into categories_words (word_id, category_id) values(:wordId, :categoryId)")
     fun addWord(@Bind("categoryId") categoryId: Long, @Bind("wordId") wordId: Long): Int
 
-    @SqlUpdate("delete from categories_words where wordId=:wordId and categoryId=:categoryId")
+    @SqlUpdate("delete from categories_words where word_id=:wordId and category_id=:categoryId")
     fun removeWord(@Bind("categoryId") categoryId: Long, @Bind("wordId") wordId: Long): Int
 }
 
@@ -96,7 +96,7 @@ class CategoryService {
     fun containWord(categoryId: Long, wordId: Long): Boolean {
         //db.onDemand<CategoryDao>().containWord(categoryId, wordId)
         return db.withHandle<Boolean, Exception> {
-            it.select("select * from categories_words where wordId=:wordId and categoryId=:categoryId")
+            it.select("select * from categories_words where word_id=:wordId and category_id=:categoryId")
                 .bind("categoryId", categoryId)
                 .bind("wordId", wordId)
                 .mapToMap()
