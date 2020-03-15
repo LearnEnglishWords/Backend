@@ -6,7 +6,8 @@ USE `learnenglish`;
 CREATE TABLE IF NOT EXISTS `collections` (
   `id` smallint(5) UNSIGNED NOT NULL AUTO_INCREMENT,
   `name` varchar(25) NOT NULL,
-  PRIMARY KEY (`id`)
+  PRIMARY KEY (`id`),
+  UNIQUE KEY (`name`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8;
 
 CREATE TABLE IF NOT EXISTS `categories` (
@@ -14,7 +15,8 @@ CREATE TABLE IF NOT EXISTS `categories` (
   `collection_id` smallint(5) UNSIGNED NOT NULL,
   `name` varchar(50) NOT NULL,
   PRIMARY KEY (`id`),
-  FOREIGN KEY (`collectionId`) REFERENCES collections(id)
+  FOREIGN KEY (`collectionId`) REFERENCES collections(id),
+  UNIQUE KEY (`name`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8;
 
 CREATE TABLE IF NOT EXISTS `words` (
@@ -24,7 +26,8 @@ CREATE TABLE IF NOT EXISTS `words` (
   `state` varchar(20) NOT NULL DEFAULT 'IMPORT',
   `sense` JSON NOT NULL,
   `examples` JSON NOT NULL,
-  PRIMARY KEY (`id`)
+  PRIMARY KEY (`id`),
+  UNIQUE KEY (`text`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8;
 
 CREATE TABLE IF NOT EXISTS `categories_words` (
