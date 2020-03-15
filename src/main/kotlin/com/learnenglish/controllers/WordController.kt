@@ -102,7 +102,7 @@ class WordController(private val wordService: WordService) : BaseController() {
     @Consumes(MediaType.TEXT_PLAIN)
     fun importWords(@Body words: String): HttpResponse<Response> {
         val result: MutableList<Word> = mutableListOf()
-        val wordsList = words.split("\n")
+        val wordsList = words.split("\n").filter { it.isNotEmpty() }
 
         for (word in wordsList) {
             if (wordService.findByText(word) == null) {
