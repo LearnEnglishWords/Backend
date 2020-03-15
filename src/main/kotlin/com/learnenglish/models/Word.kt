@@ -11,10 +11,10 @@ enum class WordState {
 
 data class Word(
     @get:NotBlank(message = "Text is required")
-    @get:Size(min = 3, max = 50)
+    @get:Size(min = 1, max = 50)
     var text: String = "",
     @get:NotBlank(message = "Pronunciation is required")
-    @get:Size(min = 3, max = 50)
+    @get:Size(min = 1, max = 50)
     var pronunciation: String = "",
     var state: WordState = WordState.IMPORT,
     var sense: List<String> = listOf(),
