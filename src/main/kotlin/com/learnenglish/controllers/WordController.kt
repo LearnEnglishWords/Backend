@@ -113,4 +113,12 @@ class WordController(private val wordService: WordService) : BaseController() {
         )
     }
 
+    @Get("/{id}/categories")
+    fun getCatagories(id: Long): HttpResponse<Response> {
+        val word = wordService.findById(id)
+                ?: return HttpResponse.notFound(Response(status = Status.NOT_FOUND.code, error = ErrorState(message = "Cannot find word with id: $id")))
+        val wordList = wordService.findCategories(word.id!!)
+
+        return HttpResponse.ok(Response(status = Status.OK.code, payload = wordList))
+    }
 }

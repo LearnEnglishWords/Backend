@@ -10,6 +10,7 @@ import io.micronaut.validation.Validated
 import com.learnenglish.services.CollectionService
 import com.learnenglish.models.Collection
 import com.learnenglish.services.CategoryService
+import io.micronaut.http.MutableHttpResponse
 import javax.validation.Valid
 
 @Validated
@@ -22,14 +23,20 @@ class CollectionController(
 
     @Get("/list")
     @Produces(MediaType.APPLICATION_JSON)
-    fun getList(): HttpResponse<List<Collection>> {
-        return HttpResponse.ok(collectionService.findAll())
+    fun getList(): MutableHttpResponse<BaseController.Response>? {
+        return HttpResponse.ok(
+            BaseController.Response(status = BaseController.Status.OK.code, payload = collectionService.findAll())
+        )
     }
 
     @Get("/{id}/categories/")
     @Produces(MediaType.APPLICATION_JSON)
-    fun getCategories(id: Long): HttpResponse<List<Category>> {
-        return HttpResponse.ok(categoryService.findAllByCollection(id))
+    fun getCategories(id: Long): MutableHttpResponse<BaseController.Response> {
+        val words = categoryService.findAllByCollection(id)
+
+        return HttpResponse.ok(
+            BaseController.Response(status = BaseController.Status.OK.code, payload = words)
+        )
     }
 
     @Get("/{id}")

@@ -1,10 +1,7 @@
 package com.learnenglish.services
 
 import com.learnenglish.config.DbConfig
-import com.learnenglish.models.BaseModel
-import com.learnenglish.models.Word
-import com.learnenglish.models.ErrorState
-import com.learnenglish.models.WordState
+import com.learnenglish.models.*
 import it.skrape.core.htmlDocument
 import it.skrape.extract
 import it.skrape.extractIt
@@ -71,6 +68,24 @@ class WordService {
             }
         } catch (e: Exception) {
             null
+        }
+    }
+
+    fun findCategories(wordId: Long): List<Category> {
+        return try {
+            db.withHandle<List<Category>, Exception> {
+                it.select("""
+                    select * from categories_words cw 
+                    join categories c on cw.categoryId=c.id 
+                    where cw.wordId=:wordId
+                """)
+                    .bind("wordId", wordId)
+                    .mapToMap()
+                    .list()
+                    .map { Category.parse(it) }
+            }
+        } catch (e: Exception) {
+            listOf()
         }
     }
 
