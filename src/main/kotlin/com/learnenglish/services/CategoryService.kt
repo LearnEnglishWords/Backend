@@ -40,6 +40,9 @@ interface CategoryDao {
     //@SqlQuery("select * from categories_words where wordId=:wordId and categoryId=:categoryId")
     //fun containWord(@Bind("categoryId") categoryId: Long, @Bind("wordId") wordId: Long)
 
+    @SqlQuery("select count(*) from categories_words where category_id=:categoryId")
+    fun getWordsCount(@Bind("categoryId") categoryId: Long): Int
+
     @SqlUpdate("insert into categories_words (word_id, category_id) values(:wordId, :categoryId)")
     fun addWord(@Bind("categoryId") categoryId: Long, @Bind("wordId") wordId: Long): Int
 
@@ -102,6 +105,14 @@ class CategoryService {
                 .mapToMap()
                 .list()
                 .size > 0
+        }
+    }
+
+    fun getWordsCount(categoryId: Long): Int? {
+        return try {
+            db.onDemand<CategoryDao>().getWordsCount(categoryId)
+        } catch (e: Exception) {
+            null
         }
     }
 

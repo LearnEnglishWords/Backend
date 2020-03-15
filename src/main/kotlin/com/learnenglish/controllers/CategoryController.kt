@@ -22,8 +22,13 @@ class CategoryController(
 
     @Get("/list")
     @Produces(MediaType.APPLICATION_JSON)
-    fun getAll(): HttpResponse<Response> {
+    fun getAll(@QueryValue(defaultValue = "false") withWordsCount: Boolean): HttpResponse<Response> {
         val categories = categoryService.findAll()
+        if (withWordsCount) {
+            categories.forEach { category ->
+                category.wordsCount = categoryService.getWordsCount(category.id!!)
+            }
+        }
         return HttpResponse.ok(Response(status = Status.OK.code, payload = categories))
     }
 

@@ -8,7 +8,8 @@ data class Category(
     @get:NotBlank(message = "Name is required")
     @get:Size(min = 3, max = 50)
     var name: String = "",
-    var collectionId: Long? = null
+    var collectionId: Long? = null,
+    var wordsCount: Int? = null
 ) : BaseModel(id = null) {
 
     companion object {
