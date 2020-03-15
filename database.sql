@@ -21,6 +21,7 @@ CREATE TABLE IF NOT EXISTS `words` (
   `id` mediumint(9) UNSIGNED NOT NULL AUTO_INCREMENT,
   `text` varchar(50) NOT NULL,
   `pronunciation` varchar(50) NOT NULL,
+  `state` varchar(20) NOT NULL DEFAULT 'IMPORT',
   `sense` JSON NOT NULL,
   `examples` JSON NOT NULL,
   PRIMARY KEY (`id`)

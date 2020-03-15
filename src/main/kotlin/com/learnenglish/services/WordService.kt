@@ -4,6 +4,7 @@ import com.learnenglish.config.DbConfig
 import com.learnenglish.models.BaseModel
 import com.learnenglish.models.Word
 import com.learnenglish.models.ErrorState
+import com.learnenglish.models.WordState
 import it.skrape.core.htmlDocument
 import it.skrape.extract
 import it.skrape.extractIt
@@ -27,9 +28,10 @@ class WordService {
     fun create(word: Word): BaseModel? {
         try {
             db.withHandle<Long, Exception> {
-                it.createUpdate("insert into words (text, pronunciation, sense, examples) values(:text, :pronunciation, JSON_ARRAY(:sense), JSON_ARRAY(:examples))")
+                it.createUpdate("insert into words (text, pronunciation, state, sense, examples) values(:text, :pronunciation, state, JSON_ARRAY(:sense), JSON_ARRAY(:examples))")
                     .bind("text", word.text)
                     .bind("pronunciation", word.pronunciation)
+                    .bind("state", word.state)
                     .bind("sense", word.sense.joinToString())
                     .bind("examples", word.examples.joinToString())
                     .execute()
@@ -44,10 +46,10 @@ class WordService {
     fun update(word: Word): Boolean {
         return try {
             db.withHandle<Long, Exception> {
-                it.createUpdate("update words set text=:text, pronunciation=:pronunciation, sense=JSON_ARRAY(:sense), examples=JSON_ARRAY(:examples) where id=:id")
-                    .bind("id", word.id)
+                it.createUpdate("update words set text=:text, pronunciation=:pronunciation, state=:state, sense=JSON_ARRAY(:sense), examples=JSON_ARRAY(:examples) where text=:text")
                     .bind("text", word.text)
                     .bind("pronunciation", word.pronunciation)
+                    .bind("state", word.state)
                     .bind("sense", word.sense.joinToString())
                     .bind("examples", word.examples.joinToString())
                     .execute()
@@ -141,7 +143,7 @@ class WordService {
                 htmlDocument {
                     span {  withClass = "eg" and "deg"
                         findAll {
-                            it.examples = eachText().getToIndex(6)
+                            it.examples = eachText().getToIndex(10)
                         }
                     }
                     span {  withClass = "ipa" and "dipa" and "lpr-2" and "lpl-1"
@@ -166,6 +168,7 @@ class WordService {
                 }
             }
         }
+        word.state = WordState.PARSE
         return word
     }
 }

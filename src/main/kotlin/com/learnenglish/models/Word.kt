@@ -5,6 +5,10 @@ import javax.validation.constraints.NotBlank
 import javax.validation.constraints.Size
 
 
+enum class WordState {
+    IMPORT, PARSE, CORRECT
+}
+
 data class Word(
     @get:NotBlank(message = "Text is required")
     @get:Size(min = 3, max = 50)
@@ -12,6 +16,7 @@ data class Word(
     @get:NotBlank(message = "Pronunciation is required")
     @get:Size(min = 3, max = 50)
     var pronunciation: String = "",
+    var state: WordState = WordState.IMPORT,
     var sense: List<String> = listOf(),
     var examples: List<String> = listOf()
 ) : BaseModel(id = null) {
@@ -22,6 +27,7 @@ data class Word(
                 id = (map["id"] as Int).toLong()
                 text = map["text"] as String
                 pronunciation = map["pronunciation"] as String
+                state = WordState.valueOf(map["state"] as String)
                 sense = (map["sense"] as String).parseList()
                 examples = (map["examples"] as String).parseList()
             }

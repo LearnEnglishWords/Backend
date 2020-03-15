@@ -9,6 +9,7 @@ import io.micronaut.validation.Validated
 import com.learnenglish.services.WordService
 import com.learnenglish.models.Word
 import com.learnenglish.models.ErrorState
+import com.learnenglish.models.WordState
 import javax.validation.Valid
 
 @Validated
@@ -71,7 +72,12 @@ class WordController(private val wordService: WordService) : BaseController() {
             Response( status = Status.BAD_REQUEST.code, error = ErrorState(message = "You can use only [a-z] characters."))
         )
         val word = wordService.parse(wordText)
-        wordService.create(word)
+
+        if(wordService.findByText(wordText) != null ) {
+            wordService.update(word)
+        } else {
+            wordService.create(word)
+        }
 
         return HttpResponse.ok(
             Response(status = Status.OK.code, payload = word)
@@ -99,7 +105,7 @@ class WordController(private val wordService: WordService) : BaseController() {
         val wordsList = words.split("\n")
 
         for (word in wordsList) {
-            result.add(wordService.create(Word(text = word)) as Word)
+            result.add(wordService.create(Word(text = word, state = WordState.IMPORT)) as Word)
         }
 
         return HttpResponse.ok(
