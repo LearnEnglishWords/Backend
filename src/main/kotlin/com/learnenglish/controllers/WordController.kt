@@ -105,7 +105,9 @@ class WordController(private val wordService: WordService) : BaseController() {
         val wordsList = words.split("\n")
 
         for (word in wordsList) {
-            result.add(wordService.create(Word(text = word, state = WordState.IMPORT)) as Word)
+            if (wordService.findByText(word) == null) {
+                result.add(wordService.create(Word(text = word, state = WordState.IMPORT)) as Word)
+            }
         }
 
         return HttpResponse.ok(
