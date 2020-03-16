@@ -31,7 +31,8 @@ class WordController(private val wordService: WordService) : BaseController() {
             Response( status = Status.BAD_REQUEST.code, error = ErrorState(message = "Param limit must be positive."))
         )
         val words = wordService.findAll((page -1) * limit, limit, state)
-        return HttpResponse.ok(Response(status = Status.OK.code, payload = words))
+        val count = wordService.getCount(state)
+        return HttpResponse.ok(Response(status = Status.OK.code, payload = mapOf("count" to count, "words" to words)))
     }
 
     @Get("/{id}")

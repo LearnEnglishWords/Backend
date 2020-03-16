@@ -74,6 +74,19 @@ class WordService {
         }
     }
 
+    fun getCount(state: WordState? = null): Int? {
+        return try {
+            db.withHandle<Int, Exception> {
+                it.select("select count(*) from words ${if(state != null) "where state=:state" else ""}")
+                    .apply { if (state != null) this.bind("state", state) }
+                    .mapTo(Int::class.java)
+                    .list().first()
+            }
+        } catch (e: Exception) {
+            null
+        }
+    }
+
     fun findCategories(wordId: Long): List<Category> {
         return try {
             db.withHandle<List<Category>, Exception> {
