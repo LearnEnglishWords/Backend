@@ -22,7 +22,7 @@ class DbConfig {
     @Replaces(DataSource::class)
     fun dataSource(): DataSource {
         var config = HikariConfig()
-        config.jdbcUrl = "jdbc:mysql://192.168.100.2:3306/learnenglish"
+        config.jdbcUrl = "jdbc:mysql://drakeman.cz:3306/learnenglish"
         config.username = "root"
         config.password = "test1"
         return HikariDataSource(config)

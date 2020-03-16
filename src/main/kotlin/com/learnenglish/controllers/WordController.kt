@@ -19,8 +19,18 @@ class WordController(private val wordService: WordService) : BaseController() {
 
     @Get("/list")
     @Produces(MediaType.APPLICATION_JSON)
-    fun getAll(): HttpResponse<Response> {
-        val words = wordService.findAll()
+    fun getAll(
+        @QueryValue(defaultValue = "1") page: Int,
+        @QueryValue(defaultValue = "10") limit: Int,
+        @QueryValue state: WordState?
+    ): HttpResponse<Response> {
+        if (page <= 0) return HttpResponse.badRequest(
+            Response( status = Status.BAD_REQUEST.code, error = ErrorState(message = "Param page must be positive."))
+        )
+        if (limit <= 0) return HttpResponse.badRequest(
+            Response( status = Status.BAD_REQUEST.code, error = ErrorState(message = "Param limit must be positive."))
+        )
+        val words = wordService.findAll((page -1) * limit, limit, state)
         return HttpResponse.ok(Response(status = Status.OK.code, payload = words))
     }
 

@@ -58,10 +58,13 @@ class WordService {
         }
     }
 
-    fun findAll(): List<Word>? {
+    fun findAll(offset: Int, limit: Int, state: WordState? = null): List<Word>? {
         return try {
             db.withHandle<List<Word>, Exception> {
-                it.select("select * from words")
+                it.select("select * from words ${if(state != null) "where state=:state" else ""} limit :offset, :limit")
+                    .bind("offset", offset)
+                    .bind("limit", limit)
+                    .apply { if (state != null) this.bind("state", state) }
                     .mapToMap()
                     .list()
                     .map { Word.parse(it) }
