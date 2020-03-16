@@ -29,8 +29,8 @@ class WordService {
                     .bind("text", word.text)
                     .bind("pronunciation", word.pronunciation)
                     .bind("state", word.state)
-                    .bind("sense", word.sense.joinToString())
-                    .bind("examples", word.examples.joinToString())
+                    .bind("sense", word.sense.joinToString("|"))
+                    .bind("examples", word.examples.joinToString("|"))
                     .execute()
                     .toLong()
             }
@@ -47,8 +47,8 @@ class WordService {
                     .bind("text", word.text)
                     .bind("pronunciation", word.pronunciation)
                     .bind("state", word.state)
-                    .bind("sense", word.sense.joinToString())
-                    .bind("examples", word.examples.joinToString())
+                    .bind("sense", word.sense.joinToString("|"))
+                    .bind("examples", word.examples.joinToString("|"))
                     .execute()
                     .toLong()
             }
