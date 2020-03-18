@@ -4,13 +4,19 @@ services:
     #image: applemann/lew-backend
     build: .
     ports:
-    - "8080:8080"
+    - "127.0.0.1:8080:8080"
     external_links:
     - database
+    environment:
+    - MYSQL_ADDRESS=database
+    - MYSQL_PORT=3306
+    - MYSQL_DATABASE=learnenglish
+    - MYSQL_USER=root
+    - MYSQL_PASSWORD=test1
   database:
     image: mysql:8
     ports:
-    - "3306:3306"
+    - "127.0.0.1:3306:3306"
     environment:
     - MYSQL_ROOT_PASSWORD=test1
 
