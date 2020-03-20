@@ -1,10 +1,11 @@
 version: '3'
 services:
   backend:
-    #image: applemann/lew-backend
+    image: applemann/lew-backend:1.0.0
     build: .
     ports:
     - "127.0.0.1:8080:8080"
+    - "127.0.0.1:4000:4000"
     external_links:
     - database
     environment:
