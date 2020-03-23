@@ -15,7 +15,7 @@ CREATE TABLE IF NOT EXISTS `categories` (
   `collection_id` smallint(5) UNSIGNED NOT NULL,
   `name` varchar(50) NOT NULL,
   PRIMARY KEY (`id`),
-  FOREIGN KEY (`collectionId`) REFERENCES collections(id),
+  FOREIGN KEY (`collection_id`) REFERENCES collections(id),
   UNIQUE KEY (`name`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8;
 
@@ -33,6 +33,6 @@ CREATE TABLE IF NOT EXISTS `words` (
 CREATE TABLE IF NOT EXISTS `categories_words` (
   `word_id` mediumint(9) UNSIGNED NOT NULL,
   `category_id` mediumint(9) UNSIGNED NOT NULL,
-  FOREIGN KEY (`wordId`) REFERENCES words(id),
-  FOREIGN KEY (`categoryId`) REFERENCES categories(id)
+  FOREIGN KEY (`word_id`) REFERENCES words(id),
+  FOREIGN KEY (`category_id`) REFERENCES categories(id)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8;
