@@ -1,16 +1,21 @@
 package com.learnenglish.services
 
+import com.fasterxml.jackson.databind.ObjectMapper
 import com.learnenglish.config.DbConfig
 import com.learnenglish.models.*
 import it.skrape.core.htmlDocument
+import it.skrape.exceptions.ElementNotFoundException
 import it.skrape.extract
 import it.skrape.extractIt
+import it.skrape.selects.DocElement
 import it.skrape.selects.and
 import it.skrape.selects.eachText
+import it.skrape.selects.html5.li
 import it.skrape.selects.html5.span
 import it.skrape.selects.html5.strong
 import it.skrape.skrape
 import javax.inject.Singleton
+
 
 
 fun List<String>.getToIndex(num: Int) = this.let {
@@ -25,9 +30,10 @@ class WordService {
     fun create(word: Word): BaseModel? {
         try {
             db.withHandle<Long, Exception> {
+                val mapper = ObjectMapper()
                 it.createUpdate("insert into words (text, pronunciation, state, sense, examples) values(:text, :pronunciation, state, JSON_ARRAY(:sense), JSON_ARRAY(:examples))")
                     .bind("text", word.text)
-                    .bind("pronunciation", word.pronunciation)
+                    .bind("pronunciation", mapper.writeValueAsString(word.pronunciation))
                     .bind("state", word.state)
                     .bind("sense", word.sense.joinToString("|"))
                     .bind("examples", word.examples.joinToString("|"))
@@ -41,11 +47,12 @@ class WordService {
     }
 
     fun update(word: Word): Boolean {
+        val mapper = ObjectMapper()
         return try {
             db.withHandle<Long, Exception> {
                 it.createUpdate("update words set text=:text, pronunciation=:pronunciation, state=:state, sense=JSON_ARRAY(:sense), examples=JSON_ARRAY(:examples) where text=:text")
                     .bind("text", word.text)
-                    .bind("pronunciation", word.pronunciation)
+                    .bind("pronunciation", mapper.writeValueAsString(word.pronunciation))
                     .bind("state", word.state)
                     .bind("sense", word.sense.joinToString("|"))
                     .bind("examples", word.examples.joinToString("|"))
@@ -166,19 +173,42 @@ class WordService {
         }
     }
 
+    private fun List<DocElement>.getExamples(): List<String>
+        = eachText().getToIndex(10).filter {
+            if (it.contains("(=") && it.contains(")")) return@filter false
+            if (it.contains("/")) return@filter false
+            return@filter true
+        }.getToIndex(5)
+
     fun parse(wordText: String): Word {
+        val pronunciation: MutableMap<String, String> = mutableMapOf()
         val word = skrape {
             url = "https://dictionary.cambridge.org/dictionary/english/$wordText"
 
             extractIt<Word> {
                 htmlDocument {
-                    span {  withClass = "eg" and "deg"
-                        findAll {
-                            it.examples = eachText().getToIndex(10)
+                    try {
+                        span {  withClass = "eg" and "deg"
+                            it.examples = findAll { getExamples() }
+                        }
+                    } catch (e: ElementNotFoundException) {
+                        li {  withClass = "eg"
+                            it.examples = findAll { getExamples() }
                         }
                     }
-                    span {  withClass = "ipa" and "dipa" and "lpr-2" and "lpl-1"
-                        it.pronunciation = findFirst { text }
+                    span {  withClass = "us" and "dpron-i"
+                        htmlDocument(findFirst { html }) {
+                            span { withClass = "ipa" and "dipa"
+                                pronunciation["us"] = findFirst { text }
+                            }
+                        }
+                    }
+                    span {  withClass = "uk" and "dpron-i"
+                        htmlDocument(findFirst { html }) {
+                            span { withClass = "ipa" and "dipa"
+                                pronunciation["uk"] = findFirst { text }
+                            }
+                        }
                     }
                     span {  withClass = "hw" and "dhw"
                         it.text = findFirst { text }
@@ -186,6 +216,7 @@ class WordService {
                 }
             }
         }
+        word.pronunciation = pronunciation
         word.sense = skrape {
             url = "https://glosbe.com/en/cs/$wordText"
 

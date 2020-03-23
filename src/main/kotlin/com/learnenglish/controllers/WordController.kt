@@ -79,8 +79,8 @@ class WordController(private val wordService: WordService) : BaseController() {
     @Get("/parse/{wordText}")
     @Consumes(MediaType.APPLICATION_JSON)
     fun parse(wordText: String): HttpResponse<Response> {
-        if(!"[a-z]\\w+".toRegex().matches(wordText)) return HttpResponse.badRequest(
-            Response( status = Status.BAD_REQUEST.code, error = ErrorState(message = "You can use only [a-z] characters."))
+        if(!"([a-z,A-Z])\\w+|([a-z,A-Z])".toRegex().matches(wordText)) return HttpResponse.badRequest(
+            Response( status = Status.BAD_REQUEST.code, error = ErrorState(message = "You can use only [a-z,A-Z] characters."))
         )
         val word = wordService.parse(wordText)
 
@@ -98,8 +98,8 @@ class WordController(private val wordService: WordService) : BaseController() {
     @Get("/find/{wordText}")
     @Consumes(MediaType.APPLICATION_JSON)
     fun find(wordText: String): HttpResponse<Response> {
-        if(!"[a-z]\\w+".toRegex().matches(wordText)) return HttpResponse.badRequest(
-            Response( status = Status.BAD_REQUEST.code, error = ErrorState(message = "You can use only [a-z] characters."))
+        if(!"([a-z,A-Z])\\w+|([a-z,A-Z])".toRegex().matches(wordText)) return HttpResponse.badRequest(
+            Response( status = Status.BAD_REQUEST.code, error = ErrorState(message = "You can use only [a-z,A-Z] characters."))
         )
 
         val word = wordService.findByText(wordText) ?: wordService.parse(wordText)
