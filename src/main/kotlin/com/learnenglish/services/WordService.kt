@@ -5,6 +5,7 @@ import com.learnenglish.config.DbConfig
 import com.learnenglish.models.*
 import it.skrape.core.htmlDocument
 import it.skrape.exceptions.ElementNotFoundException
+import it.skrape.extract
 import it.skrape.extractIt
 import it.skrape.selects.DocElement
 import it.skrape.selects.and
@@ -12,6 +13,7 @@ import it.skrape.selects.eachText
 import it.skrape.selects.html5.div
 import it.skrape.selects.html5.li
 import it.skrape.selects.html5.span
+import it.skrape.selects.html5.strong
 import it.skrape.skrape
 import org.slf4j.LoggerFactory
 import javax.inject.Singleton
@@ -213,7 +215,7 @@ class WordService(
                             }
                         }
                     } catch (e: ElementNotFoundException) {
-                        log.warn("Cannot parse US pronunciation for word: ${wordText}.")
+                        log.warn("Cannot parse US pronunciation for word: $wordText.")
                     }
                     try {
                         span {
@@ -226,7 +228,7 @@ class WordService(
                             }
                         }
                     } catch (e: ElementNotFoundException) {
-                        log.warn("Cannot parse UK pronunciation for word: ${wordText}.")
+                        log.warn("Cannot parse UK pronunciation for word: $wordText.")
                     }
                     span {  withClass = "hw" and "dhw"
                         it.text = findFirst { text }
@@ -243,25 +245,25 @@ class WordService(
         }
 
         if (pronunciation.isEmpty()) {
-            log.error("Pronunciation is empty for word: ${word}")
-            throw Exception("Pronunciation is empty for word: ${word}.")
+            log.error("Pronunciation is empty for word: $word")
+            throw Exception("Pronunciation is empty for word: $word.")
         }
 
         word.pronunciation = pronunciation
-        //word.sense = skrape {
-        //    url = "https://glosbe.com/en/cs/$wordText"
+        word.sense = skrape {
+            url = "https://glosbe.com/en/cs/$wordText"
 
-        //    extract {
-        //        htmlDocument {
-        //            strong {  withClass = "phr"
-        //                findAll {
-        //                    eachText().getToIndex(10)
-        //                }
-        //            }
-        //        }
-        //    }
-        //}
-        //word.state = WordState.PARSE
+            extract {
+                htmlDocument {
+                    strong {  withClass = "phr"
+                        findAll {
+                            eachText().getToIndex(10)
+                        }
+                    }
+                }
+            }
+        }
+        word.state = if (filter) WordState.AUTO_PARSE else WordState.PARSE
 
         if(findByText(wordText) != null ) {
             update(word)
@@ -273,7 +275,7 @@ class WordService(
             word = findByText(word.text)!!
             addWordIntoDefaultCategories(word, wordTypes)
         } catch (e: Exception) {
-            log.error("Cannot add word: ${word} into default categories.")
+            log.error("Cannot add word: $word into default categories.")
         }
 
         return word
