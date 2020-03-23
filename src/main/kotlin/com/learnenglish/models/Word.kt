@@ -28,7 +28,11 @@ data class Word(
             return Word().apply {
                 id = (map["id"] as Int).toLong()
                 text = map["text"] as String
-                pronunciation = mapper.readValue(map["pronunciation"] as String, Map::class.java) as Map<String, String>
+                pronunciation = if (!(map["pronunciation"] as String).isEmpty() && (map["pronunciation"] as String)[0] == '{')
+                    mapper.readValue(map["pronunciation"] as String, Map::class.java) as Map<String, String>
+                else
+                    mapOf("oldPronunciation" to map["pronunciation"] as String)
+
                 state = WordState.valueOf(map["state"] as String)
                 sense = (map["sense"] as String).parseList()
                 examples = (map["examples"] as String).parseList()

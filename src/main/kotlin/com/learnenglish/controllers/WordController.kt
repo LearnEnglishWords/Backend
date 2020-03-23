@@ -128,4 +128,22 @@ class WordController(private val wordService: WordService) : BaseController() {
 
         return HttpResponse.ok(Response(status = Status.OK.code, payload = wordList))
     }
+
+    @Get("/transform")
+    fun transform(): HttpResponse<Response> {
+        val words = wordService.findAll(0, 1000)!!
+
+        for (word in words) {
+            if (word.pronunciation["oldPronunciation"].isNullOrEmpty()) continue
+            try {
+                word.pronunciation = wordService.parse(word.text).pronunciation
+                wordService.update(word)
+                println("Updated: ${word.text}")
+            } catch (e: Exception) {
+                return HttpResponse.serverError(Response(status = Status.INTERNAL_ERROR.code, payload = "Error during transform: ${word.text}"))
+            }
+        }
+
+        return HttpResponse.ok(Response(status = Status.OK.code, payload = "ok"))
+    }
 }

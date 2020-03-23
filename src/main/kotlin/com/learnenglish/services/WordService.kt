@@ -226,29 +226,33 @@ class WordService(
             }
         }
         word.pronunciation = pronunciation
-        word.sense = skrape {
-            url = "https://glosbe.com/en/cs/$wordText"
+        //word.sense = skrape {
+        //    url = "https://glosbe.com/en/cs/$wordText"
 
-            extract {
-                htmlDocument {
-                    strong {  withClass = "phr"
-                        findAll {
-                            eachText().getToIndex(10)
-                        }
-                    }
-                }
-            }
+        //    extract {
+        //        htmlDocument {
+        //            strong {  withClass = "phr"
+        //                findAll {
+        //                    eachText().getToIndex(10)
+        //                }
+        //            }
+        //        }
+        //    }
+        //}
+        //word.state = WordState.PARSE
+
+        //if(findByText(wordText) != null ) {
+        //    update(word)
+        //} else {
+        //    create(word)
+        //}
+
+        //word = findByText(word.text)!!
+        try {
+            addWordIntoDefaultCategories(word, wordTypes)
+        } catch (e: Exception) {
+
         }
-        word.state = WordState.PARSE
-
-        if(findByText(wordText) != null ) {
-            update(word)
-        } else {
-            create(word)
-        }
-
-        word = findByText(word.text)!!
-        addWordIntoDefaultCategories(word, wordTypes)
 
         return word
     }
