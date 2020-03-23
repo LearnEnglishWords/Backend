@@ -84,12 +84,6 @@ class WordController(private val wordService: WordService) : BaseController() {
         )
         val word = wordService.parse(wordText)
 
-        if(wordService.findByText(wordText) != null ) {
-            wordService.update(word)
-        } else {
-            wordService.create(word)
-        }
-
         return HttpResponse.ok(
             Response(status = Status.OK.code, payload = word)
         )

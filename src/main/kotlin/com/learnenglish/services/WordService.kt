@@ -10,6 +10,7 @@ import it.skrape.extractIt
 import it.skrape.selects.DocElement
 import it.skrape.selects.and
 import it.skrape.selects.eachText
+import it.skrape.selects.html5.div
 import it.skrape.selects.html5.li
 import it.skrape.selects.html5.span
 import it.skrape.selects.html5.strong
@@ -24,7 +25,10 @@ fun List<String>.getToIndex(num: Int) = this.let {
 }
 
 @Singleton
-class WordService {
+class WordService(
+    private val categoryService: CategoryService,
+    private val collectionService: CollectionService
+) {
     private val db = DbConfig.getInstance()
 
     fun create(word: Word): BaseModel? {
@@ -182,7 +186,9 @@ class WordService {
 
     fun parse(wordText: String): Word {
         val pronunciation: MutableMap<String, String> = mutableMapOf()
-        val word = skrape {
+        var wordTypes: List<String> = listOf()
+
+        var word = skrape {
             url = "https://dictionary.cambridge.org/dictionary/english/$wordText"
 
             extractIt<Word> {
@@ -213,6 +219,9 @@ class WordService {
                     span {  withClass = "hw" and "dhw"
                         it.text = findFirst { text }
                     }
+                    div {  withClass = "posgram" and "dpos-g"
+                        wordTypes = findFirst { text }.split(", ").map { it.capitalize() }
+                    }
                 }
             }
         }
@@ -231,6 +240,27 @@ class WordService {
             }
         }
         word.state = WordState.PARSE
+
+        if(findByText(wordText) != null ) {
+            update(word)
+        } else {
+            create(word)
+        }
+
+        word = findByText(word.text)!!
+        addWordIntoDefaultCategories(word, wordTypes)
+
         return word
+    }
+
+    private fun addWordIntoDefaultCategories(word: Word, categories: List<String>) {
+        val wordCategories = findCategories(wordId = word.id!!)
+        for (categoryName in categories) {
+            if (!wordCategories.filter { categoryName == it.name }.isEmpty()) continue
+
+            val basicCollection = collectionService.findByName(DefaultCollections.BASIC.value)!!
+            val category = categoryService.findOrCreate(Category(name = categoryName, collectionId = basicCollection.id))!!
+            categoryService.addWord(categoryId = category.id!!, wordId = word.id!!)
+        }
     }
 }

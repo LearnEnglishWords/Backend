@@ -34,6 +34,9 @@ interface CategoryDao {
     @SqlQuery("select * from categories where id=:id")
     fun findById(@Bind("id") id: Long): Category?
 
+    @SqlQuery("select * from categories where name=:name and collection_id=:collectionId")
+    fun find(@Bind("name") name: String, @Bind("collectionId") collectionId: Long): Category?
+
     @SqlUpdate("delete from categories where id=:id")
     fun remove(@Bind("id") id: Long)
 
@@ -51,7 +54,9 @@ interface CategoryDao {
 }
 
 @Singleton
-class CategoryService {
+class CategoryService (
+    private val collectionService: CollectionService
+) {
     private val db = DbConfig.getInstance()
 
     fun create(category: Category): BaseModel? {
@@ -94,6 +99,22 @@ class CategoryService {
         } catch (e: Exception) {
             null
         }
+    }
+
+    fun find(category: Category): Category? {
+        return try {
+            db.onDemand<CategoryDao>().find(category.name, category.collectionId!!)
+        } catch (e: Exception) {
+            null
+        }
+    }
+
+    fun findOrCreate(category: Category): Category? {
+        return find(category) ?: create(
+            Category(
+                name = category.name,
+                collectionId = category.collectionId
+            )) as Category
     }
 
     fun containWord(categoryId: Long, wordId: Long): Boolean {

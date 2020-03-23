@@ -2,6 +2,7 @@ package com.learnenglish.services
 
 import com.learnenglish.config.DbConfig
 import com.learnenglish.models.Collection
+import com.learnenglish.models.DefaultCollections
 import org.jdbi.v3.sqlobject.config.RegisterBeanMapper
 import org.jdbi.v3.sqlobject.customizer.Bind
 import org.jdbi.v3.sqlobject.customizer.BindBean
@@ -27,6 +28,9 @@ interface CollectionDao {
     @SqlQuery("select * from collections where id=:id")
     fun findById(@Bind("id") id: Long): Collection?
 
+    @SqlQuery("select * from collections where name=:name")
+    fun findByName(@Bind("name") name: String): Collection?
+
     @SqlUpdate("delete from collections where id=:id")
     fun remove(@Bind("id") id: Long)
 }
@@ -35,7 +39,11 @@ interface CollectionDao {
 class CollectionService {
     private val db = DbConfig.getInstance()
 
-    fun save(collection: Collection): Collection? {
+    init {
+        createDefaultCollections()
+    }
+
+    fun create(collection: Collection): Collection? {
         return try {
             collection.id = db.onDemand<CollectionDao>().save(collection)
             collection
@@ -65,12 +73,33 @@ class CollectionService {
         }
     }
 
+    fun findByName(name: String): Collection? {
+        return try {
+            db.onDemand<CollectionDao>().findByName(name)
+        } catch (e: Exception) {
+            null
+        }
+    }
+
     fun delete(id: Long): Boolean {
         return try {
             db.onDemand<CollectionDao>().remove(id)
             true
         } catch (e: Exception) {
             false
+        }
+    }
+
+    fun createDefaultCollections(): Boolean {
+        try {
+            for (collection in DefaultCollections.values()) {
+                if (findByName(collection.value) == null) {
+                    create(Collection(name = collection.value))
+                }
+            }
+            return true
+        } catch (e: Exception) {
+            return false
         }
     }
 }

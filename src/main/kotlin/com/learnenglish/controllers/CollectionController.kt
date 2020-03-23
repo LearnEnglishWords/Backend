@@ -51,7 +51,7 @@ class CollectionController(
     @Post("/")
     @Consumes(MediaType.APPLICATION_JSON)
     fun save(@Body @Valid collection: Collection): HttpResponse<Collection> {
-        val collection = collectionService.save(collection)
+        val collection = collectionService.create(collection)
         return if (collection != null) {
             HttpResponse.created(collection)
         } else HttpResponse.badRequest()
