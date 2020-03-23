@@ -269,7 +269,7 @@ class WordService(
         try {
             addWordIntoDefaultCategories(word, wordTypes)
         } catch (e: Exception) {
-
+            log.error("Cannot add word: ${word} into default categories.")
         }
 
         return word
