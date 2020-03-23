@@ -177,14 +177,16 @@ class WordService(
         }
     }
 
-    private fun List<DocElement>.getExamples(): List<String>
-        = eachText().getToIndex(10).filter {
-            if (it.contains("(=") && it.contains(")")) return@filter false
-            if (it.contains("/")) return@filter false
-            return@filter true
-        }.getToIndex(5)
+    private fun List<DocElement>.getExamples(filter: Boolean): List<String>
+        = eachText().getToIndex(10).apply {
+            if (filter) return this.filter {
+                if (it.contains("(=") && it.contains(")")) return@filter false
+                if (it.contains("/")) return@filter false
+                return@filter true
+            }.getToIndex(5)
+        }
 
-    fun parse(wordText: String): Word {
+    fun parse(wordText: String, filter: Boolean = true): Word {
         val pronunciation: MutableMap<String, String> = mutableMapOf()
         var wordTypes: List<String> = listOf()
 
@@ -195,11 +197,11 @@ class WordService(
                 htmlDocument {
                     try {
                         span {  withClass = "eg" and "deg"
-                            it.examples = findAll { getExamples() }
+                            it.examples = findAll { getExamples(filter) }
                         }
                     } catch (e: ElementNotFoundException) {
                         li {  withClass = "eg"
-                            it.examples = findAll { getExamples() }
+                            it.examples = findAll { getExamples(filter) }
                         }
                     }
                     span {  withClass = "us" and "dpron-i"

@@ -76,27 +76,27 @@ class WordController(private val wordService: WordService) : BaseController() {
         return HttpResponse.ok()
     }
 
-    @Get("/parse/{wordText}")
+    @Get("/parse")
     @Consumes(MediaType.APPLICATION_JSON)
-    fun parse(wordText: String): HttpResponse<Response> {
-        if(!"([a-z,A-Z])\\w+|([a-z,A-Z])".toRegex().matches(wordText)) return HttpResponse.badRequest(
+    fun parse(@QueryValue text: String, @QueryValue(defaultValue = "true") filter: Boolean): HttpResponse<Response> {
+        if(!"([a-z,A-Z])\\w+|([a-z,A-Z])".toRegex().matches(text)) return HttpResponse.badRequest(
             Response( status = Status.BAD_REQUEST.code, error = ErrorState(message = "You can use only [a-z,A-Z] characters."))
         )
-        val word = wordService.parse(wordText)
+        val word = wordService.parse(text, filter)
 
         return HttpResponse.ok(
             Response(status = Status.OK.code, payload = word)
         )
     }
 
-    @Get("/find/{wordText}")
+    @Get("/find")
     @Consumes(MediaType.APPLICATION_JSON)
-    fun find(wordText: String): HttpResponse<Response> {
-        if(!"([a-z,A-Z])\\w+|([a-z,A-Z])".toRegex().matches(wordText)) return HttpResponse.badRequest(
+    fun find(@QueryValue text: String): HttpResponse<Response> {
+        if(!"([a-z,A-Z])\\w+|([a-z,A-Z])".toRegex().matches(text)) return HttpResponse.badRequest(
             Response( status = Status.BAD_REQUEST.code, error = ErrorState(message = "You can use only [a-z,A-Z] characters."))
         )
 
-        val word = wordService.findByText(wordText) ?: wordService.parse(wordText)
+        val word = wordService.findByText(text) ?: wordService.parse(text)
 
         return HttpResponse.ok(
                 Response(status = Status.OK.code, payload = word)
