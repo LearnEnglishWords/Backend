@@ -5,7 +5,6 @@ import com.learnenglish.config.DbConfig
 import com.learnenglish.models.*
 import it.skrape.core.htmlDocument
 import it.skrape.exceptions.ElementNotFoundException
-import it.skrape.extract
 import it.skrape.extractIt
 import it.skrape.selects.DocElement
 import it.skrape.selects.and
@@ -13,8 +12,8 @@ import it.skrape.selects.eachText
 import it.skrape.selects.html5.div
 import it.skrape.selects.html5.li
 import it.skrape.selects.html5.span
-import it.skrape.selects.html5.strong
 import it.skrape.skrape
+import org.slf4j.LoggerFactory
 import javax.inject.Singleton
 
 
@@ -30,6 +29,7 @@ class WordService(
     private val collectionService: CollectionService
 ) {
     private val db = DbConfig.getInstance()
+    private val log = LoggerFactory.getLogger(WordService::class.java)
 
     fun create(word: Word): BaseModel? {
         try {
@@ -204,19 +204,29 @@ class WordService(
                             it.examples = findAll { getExamples(filter) }
                         }
                     }
-                    span {  withClass = "us" and "dpron-i"
-                        htmlDocument(findFirst { html }) {
-                            span { withClass = "ipa" and "dipa"
-                                pronunciation["us"] = findFirst { text }
+                    try {
+                        span {  withClass = "us" and "dpron-i"
+                            htmlDocument(findFirst { html }) {
+                                span { withClass = "ipa" and "dipa"
+                                    pronunciation["us"] = findFirst { text }
+                                }
                             }
                         }
+                    } catch (e: ElementNotFoundException) {
+                        log.warn("Cannot parse US pronunciation for word: ${wordText}.")
                     }
-                    span {  withClass = "uk" and "dpron-i"
-                        htmlDocument(findFirst { html }) {
-                            span { withClass = "ipa" and "dipa"
-                                pronunciation["uk"] = findFirst { text }
+                    try {
+                        span {
+                            withClass = "uk" and "dpron-i"
+                            htmlDocument(findFirst { html }) {
+                                span {
+                                    withClass = "ipa" and "dipa"
+                                    pronunciation["uk"] = findFirst { text }
+                                }
                             }
                         }
+                    } catch (e: ElementNotFoundException) {
+                        log.warn("Cannot parse UK pronunciation for word: ${wordText}.")
                     }
                     span {  withClass = "hw" and "dhw"
                         it.text = findFirst { text }
@@ -227,6 +237,12 @@ class WordService(
                 }
             }
         }
+
+        if (pronunciation.isEmpty()) {
+            log.error("Pronunciation is empty for word: ${word}")
+            throw Exception("Pronunciation is empty for word: ${word}.")
+        }
+
         word.pronunciation = pronunciation
         //word.sense = skrape {
         //    url = "https://glosbe.com/en/cs/$wordText"
