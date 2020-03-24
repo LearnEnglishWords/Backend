@@ -10,12 +10,16 @@ import com.learnenglish.services.WordService
 import com.learnenglish.models.Word
 import com.learnenglish.models.ErrorState
 import com.learnenglish.models.WordState
+import org.slf4j.LoggerFactory
+import java.io.IOException
 import javax.validation.Valid
 
 @Validated
 @Controller("/word")
 @Secured(SecurityRule.IS_ANONYMOUS)
 class WordController(private val wordService: WordService) : BaseController() {
+
+    private val log = LoggerFactory.getLogger(WordService::class.java)
 
     @Get("/list")
     @Produces(MediaType.APPLICATION_JSON)
@@ -82,11 +86,24 @@ class WordController(private val wordService: WordService) : BaseController() {
         if(!"([a-z,A-Z])\\w+|([a-z,A-Z])".toRegex().matches(text)) return HttpResponse.badRequest(
             Response( status = Status.BAD_REQUEST.code, error = ErrorState(message = "You can use only [a-z,A-Z] characters."))
         )
-        val word = wordService.parse(text, filter)
+        val word: Word
+        try {
+            word = wordService.parse(text, filter)
+            return HttpResponse.ok(Response(status = Status.OK.code, payload = word))
+        } catch (e: Exception) {
+            log.error("Cannot parse word: $text")
+            return HttpResponse.serverError(
+                Response(
+                    status = Status.INTERNAL_ERROR.code,
+                    error = ErrorState(
+                        code = 500,
+                        type = "PARSE_ERROR",
+                        message = "Cannot parse word: $text"
+                    )
+                )
+            )
+        }
 
-        return HttpResponse.ok(
-            Response(status = Status.OK.code, payload = word)
-        )
     }
 
     @Get("/find")
@@ -134,13 +151,14 @@ class WordController(private val wordService: WordService) : BaseController() {
         val words = wordService.findAll(0, 1000)!!
 
         for (word in words) {
-            if (word.pronunciation["oldPronunciation"].isNullOrEmpty()) continue
+            val wordCategories = wordService.findCategories(wordId = word.id!!)
+            if (!wordCategories.isEmpty()) { continue }
             try {
-                word.pronunciation = wordService.parse(word.text).pronunciation
-                wordService.update(word)
-                println("Updated: ${word.text}")
+                wordService.parse(word.text)
+                log.info("Parsed word: ${word.text}")
             } catch (e: Exception) {
-                return HttpResponse.serverError(Response(status = Status.INTERNAL_ERROR.code, payload = "Error during transform: ${word.text}"))
+                log.error("Error during transform: ${word.text}")
+                //return HttpResponse.serverError(Response(status = Status.INTERNAL_ERROR.code, payload = "Error during transform: ${word.text}"))
             }
         }
 

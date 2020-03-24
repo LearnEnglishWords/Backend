@@ -231,8 +231,12 @@ class WordService(
                     span {  withClass = "hw" and "dhw"
                         it.text = findFirst { text }
                     }
-                    div {  withClass = "posgram" and "dpos-g"
-                        wordTypes = findFirst { text }.split(", ").map { it.capitalize() }
+                    try {
+                        div {  withClass = "posgram" and "dpos-g"
+                            wordTypes = findFirst { text }.split(", ").map { it.capitalize() }
+                        }
+                    } catch (e: ElementNotFoundException) {
+                        log.warn("Cannot parse wordTypes for word: ${wordText}.")
                     }
                 }
             }
@@ -259,14 +263,14 @@ class WordService(
         //}
         //word.state = WordState.PARSE
 
-        //if(findByText(wordText) != null ) {
-        //    update(word)
-        //} else {
-        //    create(word)
-        //}
+        if(findByText(wordText) != null ) {
+            update(word)
+        } else {
+            create(word)
+        }
 
-        //word = findByText(word.text)!!
         try {
+            word = findByText(word.text)!!
             addWordIntoDefaultCategories(word, wordTypes)
         } catch (e: Exception) {
             log.error("Cannot add word: ${word} into default categories.")
@@ -277,12 +281,14 @@ class WordService(
 
     private fun addWordIntoDefaultCategories(word: Word, categories: List<String>) {
         val wordCategories = findCategories(wordId = word.id!!)
+        val basicCollection = collectionService.findByName(DefaultCollections.BASIC.value)!!
+
         for (categoryName in categories) {
             if (!wordCategories.filter { categoryName == it.name }.isEmpty()) continue
 
-            val basicCollection = collectionService.findByName(DefaultCollections.BASIC.value)!!
             val category = categoryService.findOrCreate(Category(name = categoryName, collectionId = basicCollection.id))!!
             categoryService.addWord(categoryId = category.id!!, wordId = word.id!!)
+            log.info("Add word: ${word.text} into category: $categoryName")
         }
     }
 }
