@@ -145,23 +145,4 @@ class WordController(private val wordService: WordService) : BaseController() {
 
         return HttpResponse.ok(Response(status = Status.OK.code, payload = wordList))
     }
-
-    @Get("/transform")
-    fun transform(): HttpResponse<Response> {
-        val words = wordService.findAll(0, 1000)!!
-
-        for (word in words) {
-            val wordCategories = wordService.findCategories(wordId = word.id!!)
-            if (!wordCategories.isEmpty()) { continue }
-            try {
-                wordService.parse(word.text)
-                log.info("Parsed word: ${word.text}")
-            } catch (e: Exception) {
-                log.error("Error during transform: ${word.text}")
-                //return HttpResponse.serverError(Response(status = Status.INTERNAL_ERROR.code, payload = "Error during transform: ${word.text}"))
-            }
-        }
-
-        return HttpResponse.ok(Response(status = Status.OK.code, payload = "ok"))
-    }
 }
