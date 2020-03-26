@@ -1,5 +1,6 @@
 package com.learnenglish.controllers
 
+import com.learnenglish.models.BaseModel
 import io.micronaut.http.HttpResponse
 import io.micronaut.http.MediaType
 import io.micronaut.http.annotation.*
@@ -123,12 +124,22 @@ class WordController(private val wordService: WordService) : BaseController() {
     @Post("/import")
     @Consumes(MediaType.TEXT_PLAIN)
     fun importWords(@Body words: String): HttpResponse<Response> {
-        val result: MutableList<Word> = mutableListOf()
-        val wordsList = words.split("\n").filter { it.isNotEmpty() }
+        val result: MutableList<BaseModel> = mutableListOf()
+        val wordLines = words.split("\n").filter { it.isNotEmpty() }
+        val regex = """([a-z,A-Z]\w+);(\d+)""".toRegex()
 
-        for (word in wordsList) {
-            if (wordService.findByText(word) == null) {
-                result.add(wordService.create(Word(text = word, state = WordState.IMPORT)) as Word)
+        for (wordLine in wordLines) {
+            val (word, rank) = regex.find(wordLine)!!.destructured
+
+            val savedWord = wordService.findByText(word)
+            if (savedWord == null) {
+                result.add(wordService.create(Word(text = word, rank = rank.toLong(), state = WordState.IMPORT)) as Word)
+            } else {
+                savedWord.rank = rank.toLong()
+                if (wordService.update(savedWord))
+                    result.add(savedWord)
+                else
+                    result.add(ErrorState(message = "Error during update"))
             }
         }
 

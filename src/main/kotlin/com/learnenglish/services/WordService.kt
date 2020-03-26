@@ -37,10 +37,12 @@ class WordService(
         try {
             db.withHandle<Long, Exception> {
                 val mapper = ObjectMapper()
-                it.createUpdate("insert into words (text, pronunciation, state, sense, examples) values(:text, :pronunciation, state, JSON_ARRAY(:sense), JSON_ARRAY(:examples))")
+                it.createUpdate("insert into words (collection_id, text, pronunciation, state, `rank`, sense, examples) values(:collectionId, :text, :pronunciation, :state, :rank, JSON_ARRAY(:sense), JSON_ARRAY(:examples))")
+                    .bind("collectionId", word.collectionId)
                     .bind("text", word.text)
                     .bind("pronunciation", mapper.writeValueAsString(word.pronunciation))
                     .bind("state", word.state)
+                    .bind("rank", word.rank)
                     .bind("sense", word.sense.joinToString("|"))
                     .bind("examples", word.examples.joinToString("|"))
                     .execute()
@@ -56,10 +58,12 @@ class WordService(
         val mapper = ObjectMapper()
         return try {
             db.withHandle<Long, Exception> {
-                it.createUpdate("update words set text=:text, pronunciation=:pronunciation, state=:state, sense=JSON_ARRAY(:sense), examples=JSON_ARRAY(:examples) where text=:text")
+                it.createUpdate("update words set collection_id=:collectionId, text=:text, pronunciation=:pronunciation, state=:state, `rank`=:rank, sense=JSON_ARRAY(:sense), examples=JSON_ARRAY(:examples) where text=:text")
+                    .bind("collectionId", word.collectionId)
                     .bind("text", word.text)
                     .bind("pronunciation", mapper.writeValueAsString(word.pronunciation))
                     .bind("state", word.state)
+                    .bind("rank", word.rank)
                     .bind("sense", word.sense.joinToString("|"))
                     .bind("examples", word.examples.joinToString("|"))
                     .execute()

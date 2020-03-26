@@ -12,7 +12,7 @@ CREATE TABLE IF NOT EXISTS `collections` (
 
 CREATE TABLE IF NOT EXISTS `categories` (
   `id` mediumint(9) UNSIGNED NOT NULL AUTO_INCREMENT,
-  `collection_id` smallint(5) UNSIGNED NOT NULL,
+  `collection_id` smallint(5) UNSIGNED NULL,
   `name` varchar(50) NOT NULL,
   PRIMARY KEY (`id`),
   FOREIGN KEY (`collection_id`) REFERENCES collections(id),
@@ -21,12 +21,15 @@ CREATE TABLE IF NOT EXISTS `categories` (
 
 CREATE TABLE IF NOT EXISTS `words` (
   `id` mediumint(9) UNSIGNED NOT NULL AUTO_INCREMENT,
+  `collection_id` smallint(5) UNSIGNED NULL,
   `text` varchar(50) NOT NULL,
   `pronunciation` varchar(200) NOT NULL,
   `state` varchar(20) NOT NULL DEFAULT 'IMPORT',
+  `rank` mediumint(9) UNSIGNED NOT NULL,
   `sense` JSON NOT NULL,
   `examples` JSON NOT NULL,
   PRIMARY KEY (`id`),
+  FOREIGN KEY (`collection_id`) REFERENCES collections(id),
   UNIQUE KEY (`text`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8;
 
