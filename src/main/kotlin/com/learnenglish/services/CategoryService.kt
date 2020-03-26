@@ -16,11 +16,11 @@ import java.sql.SQLIntegrityConstraintViolationException
 import javax.inject.Singleton
 
 interface CategoryDao {
-    @SqlUpdate("insert into categories (name, collection_id) values(:name, :collectionId)")
+    @SqlUpdate("insert into categories (name, name_cs, collection_id) values(:name, :czechName, :collectionId)")
     @GetGeneratedKeys
     fun insert(@BindBean category: Category): Long
 
-    @SqlUpdate("update categories set name=:name where id=:id")
+    @SqlUpdate("update categories set name=:name, name_cs=:czechName where id=:id")
     fun update(@BindBean category: Category): Int
 
     @SqlQuery("select * from categories")

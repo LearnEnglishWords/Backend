@@ -5,7 +5,7 @@ USE `learnenglish`;
 
 CREATE TABLE IF NOT EXISTS `collections` (
   `id` smallint(5) UNSIGNED NOT NULL AUTO_INCREMENT,
-  `name` varchar(25) NOT NULL,
+  `name` varchar(50) NOT NULL
   PRIMARY KEY (`id`),
   UNIQUE KEY (`name`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8;
@@ -14,6 +14,7 @@ CREATE TABLE IF NOT EXISTS `categories` (
   `id` mediumint(9) UNSIGNED NOT NULL AUTO_INCREMENT,
   `collection_id` smallint(5) UNSIGNED NULL,
   `name` varchar(50) NOT NULL,
+  `name_cs` varchar(50) NOT NULL,
   PRIMARY KEY (`id`),
   FOREIGN KEY (`collection_id`) REFERENCES collections(id),
   UNIQUE KEY (`name`)
