@@ -190,7 +190,6 @@ class WordService(
 
     fun parse(wordText: String, filter: Boolean = true): Word {
         val pronunciation: MutableMap<String, String> = mutableMapOf()
-        var wordTypes: List<String> = listOf()
 
         var word = skrape {
             url = "https://dictionary.cambridge.org/dictionary/english/$wordText"
@@ -233,13 +232,6 @@ class WordService(
                     span {  withClass = "hw" and "dhw"
                         it.text = findFirst { text }
                     }
-                    try {
-                        div {  withClass = "posgram" and "dpos-g"
-                            wordTypes = findFirst { text }.split(", ").map { it.capitalize() }
-                        }
-                    } catch (e: ElementNotFoundException) {
-                        log.warn("Cannot parse wordTypes for word: ${wordText}.")
-                    }
                 }
             }
         }
@@ -269,13 +261,6 @@ class WordService(
             update(word)
         } else {
             create(word)
-        }
-
-        try {
-            word = findByText(word.text)!!
-            addWordIntoDefaultCategories(word, wordTypes)
-        } catch (e: Exception) {
-            log.error("Cannot add word: $word into default categories.")
         }
 
         return word
