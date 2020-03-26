@@ -1,6 +1,7 @@
 package com.learnenglish.controllers
 
-import com.learnenglish.models.BaseModel
+import com.learnenglish.models.*
+import com.learnenglish.services.CategoryService
 import io.micronaut.http.HttpResponse
 import io.micronaut.http.MediaType
 import io.micronaut.http.annotation.*
@@ -8,11 +9,7 @@ import io.micronaut.security.annotation.Secured
 import io.micronaut.security.rules.SecurityRule
 import io.micronaut.validation.Validated
 import com.learnenglish.services.WordService
-import com.learnenglish.models.Word
-import com.learnenglish.models.ErrorState
-import com.learnenglish.models.WordState
 import org.slf4j.LoggerFactory
-import java.io.IOException
 import javax.validation.Valid
 
 @Validated
@@ -126,20 +123,32 @@ class WordController(private val wordService: WordService) : BaseController() {
     fun importWords(@Body words: String): HttpResponse<Response> {
         val result: MutableList<BaseModel> = mutableListOf()
         val wordLines = words.split("\n").filter { it.isNotEmpty() }
-        val regex = """([a-z,A-Z]\w+);(\d+)""".toRegex()
+        val regex = """([a-z,A-Z]\w+);(\d+);([a-z])""".toRegex()
 
         for (wordLine in wordLines) {
-            val (word, rank) = regex.find(wordLine)!!.destructured
+            val (word, rank, wordTypeShortcut) = regex.find(wordLine)!!.destructured
 
-            val savedWord = wordService.findByText(word)
+            val wordType = WordType.values().firstOrNull { it.shortcut == wordTypeShortcut }
+            if (wordType == null) {
+                result.add(ErrorState(message = "Wrong wordType shortcut for word: $word."))
+                continue
+            }
+
+            var savedWord = wordService.findByText(word)
             if (savedWord == null) {
-                result.add(wordService.create(Word(text = word, rank = rank.toLong(), state = WordState.IMPORT)) as Word)
+                savedWord = wordService.create(Word(text = word, rank = rank.toLong(), state = WordState.IMPORT)) as Word
+                wordService.addIntoWordTypeCategory(savedWord, wordType)
+                        ?: result.add(ErrorState(message = "Error cannot add into wordType category word: $word.")) && continue
+                result.add(savedWord)
             } else {
                 savedWord.rank = rank.toLong()
-                if (wordService.update(savedWord))
+                if (wordService.update(savedWord)) {
+                    wordService.addIntoWordTypeCategory(savedWord, wordType)
+                            ?: result.add(ErrorState(message = "Error cannot add into wordType category word: $word.")) && continue
                     result.add(savedWord)
-                else
-                    result.add(ErrorState(message = "Error during update"))
+                } else {
+                    result.add(ErrorState(message = "Error during update for word: $word."))
+                }
             }
         }
 

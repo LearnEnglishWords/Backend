@@ -10,7 +10,6 @@ import it.skrape.extractIt
 import it.skrape.selects.DocElement
 import it.skrape.selects.and
 import it.skrape.selects.eachText
-import it.skrape.selects.html5.div
 import it.skrape.selects.html5.li
 import it.skrape.selects.html5.span
 import it.skrape.selects.html5.strong
@@ -48,7 +47,7 @@ class WordService(
                     .execute()
                     .toLong()
             }
-            return word
+            return findByText(word.text)
         } catch (e: Exception) {
             return ErrorState(code = 0, type = "Unknown", message = "Some problem during saving into database.")
         }
@@ -268,6 +267,24 @@ class WordService(
         }
 
         return word
+    }
+
+    fun addIntoWordTypeCategory(word: Word, wordType: WordType): Boolean? {
+        try {
+            when (wordType) {
+                WordType.DEMONSTRATIVE, WordType.EXISTENTIAL, WordType.ARTICLE -> {
+                    val category = categoryService.findByName(WordType.PRONOUN.value)!!
+                    categoryService.addWord(category.id!!, word.id!!)
+                }
+            }
+
+            val category = categoryService.findByName(wordType.value)!!
+            categoryService.addWord(category.id!!, word.id!!)
+
+            return true
+        } catch (e: Exception) {
+            return null
+        }
     }
 
     private fun addWordIntoDefaultCategories(word: Word, categories: List<String>) {

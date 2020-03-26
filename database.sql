@@ -38,5 +38,6 @@ CREATE TABLE IF NOT EXISTS `categories_words` (
   `word_id` mediumint(9) UNSIGNED NOT NULL,
   `category_id` mediumint(9) UNSIGNED NOT NULL,
   FOREIGN KEY (`word_id`) REFERENCES words(id),
-  FOREIGN KEY (`category_id`) REFERENCES categories(id)
+  FOREIGN KEY (`category_id`) REFERENCES categories(id),
+  UNIQUE KEY (`word_id`, `category_id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8;

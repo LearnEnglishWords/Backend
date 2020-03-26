@@ -34,6 +34,9 @@ interface CategoryDao {
     @SqlQuery("select * from categories where id=:id")
     fun findById(@Bind("id") id: Long): Category?
 
+    @SqlQuery("select * from categories where name=:name")
+    fun findByName(@Bind("name") name: String): Category?
+
     @SqlQuery("select * from categories where name=:name and collection_id=:collectionId")
     fun find(@Bind("name") name: String, @Bind("collectionId") collectionId: Long): Category?
 
@@ -96,6 +99,14 @@ class CategoryService (
     fun findById(id: Long): Category? {
         return try {
             db.onDemand<CategoryDao>().findById(id)
+        } catch (e: Exception) {
+            null
+        }
+    }
+
+    fun findByName(name: String): Category? {
+        return try {
+            db.onDemand<CategoryDao>().findByName(name)
         } catch (e: Exception) {
             null
         }
