@@ -123,10 +123,11 @@ class WordController(private val wordService: WordService) : BaseController() {
     fun importWords(@Body words: String): HttpResponse<Response> {
         val result: MutableList<BaseModel> = mutableListOf()
         val wordLines = words.split("\n").filter { it.isNotEmpty() }
-        val regex = """([a-z,A-Z]\w+);(\d+);([a-z])""".toRegex()
+        val regex = """([a-z,A-Z]\w*);(\d+);([a-z])""".toRegex()
 
         for (wordLine in wordLines) {
-            val (word, rank, wordTypeShortcut) = regex.find(wordLine)!!.destructured
+            var (word, rank, wordTypeShortcut) = regex.find(wordLine)!!.destructured
+            word = word.capitalize()
 
             val wordType = WordType.values().firstOrNull { it.shortcut == wordTypeShortcut }
             if (wordType == null) {
@@ -138,13 +139,13 @@ class WordController(private val wordService: WordService) : BaseController() {
             if (savedWord == null) {
                 savedWord = wordService.create(Word(text = word, rank = rank.toLong(), state = WordState.IMPORT)) as Word
                 wordService.addIntoWordTypeCategory(savedWord, wordType)
-                        ?: result.add(ErrorState(message = "Error cannot add into wordType category word: $word.")) && continue
+                        ?: result.add(ErrorState(message = "Error cannot add into wordType: $wordType category word: $word.")) && continue
                 result.add(savedWord)
             } else {
                 savedWord.rank = rank.toLong()
                 if (wordService.update(savedWord)) {
                     wordService.addIntoWordTypeCategory(savedWord, wordType)
-                            ?: result.add(ErrorState(message = "Error cannot add into wordType category word: $word.")) && continue
+                            ?: result.add(ErrorState(message = "Error cannot add into wordType: $wordType category word: $word.")) && continue
                     result.add(savedWord)
                 } else {
                     result.add(ErrorState(message = "Error during update for word: $word."))

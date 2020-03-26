@@ -7,7 +7,7 @@ import javax.validation.constraints.Size
 
 enum class WordType(val value: String, val shortcut: String) {
     NOUN("Nouns", "n"),
-    ADJECTIVE("Adjectiveds", "j"),
+    ADJECTIVE("Adjectives", "j"),
     PRONOUN("Pronouns", "p"),
     NUMBER("Numbers", "m"),
     VERB("Verbs", "v"),
