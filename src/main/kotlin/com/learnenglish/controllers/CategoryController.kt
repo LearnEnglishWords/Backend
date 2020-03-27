@@ -1,5 +1,6 @@
 package com.learnenglish.controllers
 
+import com.learnenglish.models.BaseModel
 import io.micronaut.http.HttpResponse
 import io.micronaut.http.MediaType
 import io.micronaut.http.annotation.*
@@ -10,6 +11,7 @@ import com.learnenglish.services.CategoryService
 import com.learnenglish.models.Category
 import com.learnenglish.models.ErrorState
 import com.learnenglish.services.WordService
+import org.slf4j.LoggerFactory
 import javax.validation.Valid
 
 @Validated
@@ -19,6 +21,9 @@ class CategoryController(
     private val wordService: WordService,
     private val categoryService: CategoryService
 ) : BaseController() {
+
+    private val log = LoggerFactory.getLogger(WordService::class.java)
+
 
     @Get("/list")
     @Produces(MediaType.APPLICATION_JSON)
@@ -118,6 +123,34 @@ class CategoryController(
             ?: return HttpResponse.notFound(Response(status = Status.NOT_FOUND.code, error = ErrorState(message = "Cannot find category with id: $id")))
         val wordList = wordService.findByCategory(categoryId = category.id!!)
 
-        return HttpResponse.ok(Response(status = Status.OK.code, payload = wordList))
+        return HttpResponse.ok(Response(status = Status.OK.code, payload = mapOf("count" to wordList.size, "words" to wordList)))
+    }
+
+
+    @Post("/{id}/import")
+    @Consumes(MediaType.TEXT_PLAIN)
+    fun importWords(id: Long, @Body words: String): HttpResponse<Response> {
+        val result: MutableList<BaseModel> = mutableListOf()
+        val wordList = words.split("\n").filter { it.isNotEmpty() }.map { it.toLowerCase().trim() }
+
+        val categoryError = Response(status = Status.INTERNAL_ERROR.code, payload = "Cannot find category with id: $id")
+        val category = categoryService.findById(id) ?: return HttpResponse.serverError(categoryError)
+
+        for (wordText in wordList) {
+            val word = wordService.findByText(wordText)
+            if(word == null) {
+                val errorMessage = "Cannot find word: $wordText"
+                println(errorMessage)
+                result.add(ErrorState(message = errorMessage))
+                continue
+            }
+
+            categoryService.addWord(categoryId = category.id!!, wordId = word.id!!)
+            result.add(word)
+        }
+
+        return HttpResponse.ok(
+            Response(status = Status.OK.code, payload = result)
+        )
     }
 }
