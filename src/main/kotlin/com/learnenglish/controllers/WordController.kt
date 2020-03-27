@@ -126,30 +126,34 @@ class WordController(private val wordService: WordService) : BaseController() {
         val regex = """([a-z,A-Z]\w*);(\d+);([a-z])""".toRegex()
 
         for (wordLine in wordLines) {
-            var (word, rank, wordTypeShortcut) = regex.find(wordLine)!!.destructured
-            word = word.capitalize()
+            try {
+                var (word, rank, wordTypeShortcut) = regex.find(wordLine)!!.destructured
+                word = word.capitalize()
 
-            val wordType = WordType.values().firstOrNull { it.shortcut == wordTypeShortcut }
-            if (wordType == null) {
-                result.add(ErrorState(message = "Wrong wordType shortcut for word: $word."))
-                continue
-            }
+                val wordType = WordType.values().firstOrNull { it.shortcut == wordTypeShortcut }
+                if (wordType == null) {
+                    result.add(ErrorState(message = "Wrong wordType shortcut for word: $word."))
+                    continue
+                }
 
-            var savedWord = wordService.findByText(word)
-            if (savedWord == null) {
-                savedWord = wordService.create(Word(text = word, rank = rank.toLong(), state = WordState.IMPORT)) as Word
-                wordService.addIntoWordTypeCategory(savedWord, wordType)
-                        ?: result.add(ErrorState(message = "Error cannot add into wordType: $wordType category word: $word.")) && continue
-                result.add(savedWord)
-            } else {
-                savedWord.rank = rank.toLong()
-                if (wordService.update(savedWord)) {
+                var savedWord = wordService.findByText(word)
+                if (savedWord == null) {
+                    savedWord = wordService.create(Word(text = word, rank = rank.toLong(), state = WordState.IMPORT)) as Word
                     wordService.addIntoWordTypeCategory(savedWord, wordType)
                             ?: result.add(ErrorState(message = "Error cannot add into wordType: $wordType category word: $word.")) && continue
                     result.add(savedWord)
                 } else {
-                    result.add(ErrorState(message = "Error during update for word: $word."))
+                    savedWord.rank = rank.toLong()
+                    if (wordService.update(savedWord)) {
+                        wordService.addIntoWordTypeCategory(savedWord, wordType)
+                                ?: result.add(ErrorState(message = "Error cannot add into wordType: $wordType category word: $word.")) && continue
+                        result.add(savedWord)
+                    } else {
+                        result.add(ErrorState(message = "Error during update for word: $word."))
+                    }
                 }
+            } catch (e: java.lang.Exception) {
+                log.error("Cannot import: $wordLine")
             }
         }
 
