@@ -131,7 +131,7 @@ class CategoryController(
     @Consumes(MediaType.TEXT_PLAIN)
     fun importWords(id: Long, @Body words: String): HttpResponse<Response> {
         val result: MutableList<BaseModel> = mutableListOf()
-        val wordList = words.split("\n").filter { it.isNotEmpty() }.map { it.toLowerCase().trim() }
+        val wordList = words.split("\n").filter { it.isNotBlank() }.map { it.trim() }
 
         val categoryError = Response(status = Status.INTERNAL_ERROR.code, payload = "Cannot find category with id: $id")
         val category = categoryService.findById(id) ?: return HttpResponse.serverError(categoryError)
