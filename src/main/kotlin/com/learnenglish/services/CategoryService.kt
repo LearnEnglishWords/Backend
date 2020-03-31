@@ -4,6 +4,7 @@ import com.learnenglish.config.DbConfig
 import com.learnenglish.models.BaseModel
 import com.learnenglish.models.Category
 import com.learnenglish.models.ErrorState
+import com.learnenglish.models.Word
 import org.jdbi.v3.core.statement.UnableToExecuteStatementException
 import org.jdbi.v3.sqlobject.config.RegisterBeanMapper
 import org.jdbi.v3.sqlobject.customizer.Bind
@@ -22,10 +23,6 @@ interface CategoryDao {
 
     @SqlUpdate("update categories set name=:name, name_cs=:czechName where id=:id")
     fun update(@BindBean category: Category): Int
-
-    @SqlQuery("select * from categories")
-    @RegisterBeanMapper(Category::class)
-    fun findAll(): List<Category>
 
     @SqlQuery("select * from categories where collection_id=:collectionId")
     @RegisterBeanMapper(Category::class)
@@ -88,8 +85,17 @@ class CategoryService (
         }
     }
 
-    fun findAll(): List<Category> {
-        return db.onDemand<CategoryDao>().findAll()
+    fun findAll(): List<Category>? {
+        return try {
+            db.withHandle<List<Category>, Exception> {
+                it.select("select * from categories")
+                        .mapToMap()
+                        .list()
+                        .map { Category.parse(it) }
+            }
+        } catch (e: Exception) {
+            null
+        }
     }
 
     fun findAllByCollection(collectionId: Long): List<Category> {

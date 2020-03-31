@@ -35,6 +35,7 @@ data class Category(
             return Category().apply {
                 id = (map["id"] as Int).toLong()
                 name = map["name"] as String
+                czechName = map["name_cs"] as String
                 collectionId = (map["collection_id"] as Int?)?.toLong()
             }
         }

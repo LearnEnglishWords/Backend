@@ -30,7 +30,7 @@ class CategoryController(
     fun getAll(@QueryValue(defaultValue = "false") withWordsCount: Boolean): HttpResponse<Response> {
         val categories = categoryService.findAll()
         if (withWordsCount) {
-            categories.forEach { category ->
+            categories?.forEach { category ->
                 category.wordsCount = categoryService.getWordsCount(category.id!!)
             }
         }
@@ -121,8 +121,9 @@ class CategoryController(
     fun getCatagoryWords(id: Long, collectionId: Long?): HttpResponse<Response> {
         val category = categoryService.findById(id)
             ?: return HttpResponse.notFound(Response(status = Status.NOT_FOUND.code, error = ErrorState(message = "Cannot find category with id: $id")))
-        val wordList = wordService.findByCategory(categoryId = category.id!!)
-            .apply { if (collectionId != null) filter { it.collectionId == collectionId } }
+        var wordList = wordService.findByCategory(categoryId = category.id!!)
+        if (collectionId != null)
+            wordList = wordList.filter { it.collectionId == collectionId }
 
         return HttpResponse.ok(Response(status = Status.OK.code, payload = mapOf("count" to wordList.size, "words" to wordList)))
     }
