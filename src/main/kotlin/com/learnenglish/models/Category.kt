@@ -21,6 +21,8 @@ enum class WordType(val value: String, val shortcut: String) {
 }
 
 data class Category(
+    @get:Size(min = 2, max = 25)
+    var icon: String = "",
     @get:NotBlank(message = "Name is required")
     @get:Size(min = 3, max = 50)
     var name: String = "",
@@ -34,6 +36,7 @@ data class Category(
         fun parse(map: Map<String, Any?>): Category {
             return Category().apply {
                 id = (map["id"] as Int).toLong()
+                icon = map["icon"] as String
                 name = map["name"] as String
                 czechName = map["name_cs"] as String
                 collectionId = (map["collection_id"] as Int?)?.toLong()

@@ -13,6 +13,7 @@ CREATE TABLE IF NOT EXISTS `collections` (
 CREATE TABLE IF NOT EXISTS `categories` (
   `id` mediumint(9) UNSIGNED NOT NULL AUTO_INCREMENT,
   `collection_id` smallint(5) UNSIGNED NULL,
+  `icon` varchar(25) NOT NULL,
   `name` varchar(50) NOT NULL,
   `name_cs` varchar(50) NOT NULL,
   PRIMARY KEY (`id`),
