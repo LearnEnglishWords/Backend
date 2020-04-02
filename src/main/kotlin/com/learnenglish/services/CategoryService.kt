@@ -1,10 +1,7 @@
 package com.learnenglish.services
 
 import com.learnenglish.config.DbConfig
-import com.learnenglish.models.BaseModel
-import com.learnenglish.models.Category
-import com.learnenglish.models.ErrorState
-import com.learnenglish.models.Word
+import com.learnenglish.models.*
 import org.jdbi.v3.core.statement.UnableToExecuteStatementException
 import org.jdbi.v3.sqlobject.config.RegisterBeanMapper
 import org.jdbi.v3.sqlobject.customizer.Bind
@@ -92,6 +89,11 @@ class CategoryService (
                         .mapToMap()
                         .list()
                         .map { Category.parse(it) }
+                        .filter { category ->
+                            category.name != WordType.EXISTENTIAL.value &&
+                            category.name != WordType.DEMONSTRATIVE.value &&
+                            category.name != WordType.ARTICLE.value
+                        }
             }
         } catch (e: Exception) {
             null
