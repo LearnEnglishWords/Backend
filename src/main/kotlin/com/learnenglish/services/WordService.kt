@@ -43,7 +43,7 @@ class WordService(
                     .bind("state", word.state)
                     .bind("rank", word.rank)
                     .bind("sense", word.sense.joinToString("|"))
-                    .bind("examples", word.examples.joinToString("|"))
+                    .bind("examples", word.examples.joinToString("|").replace("\\", ""))
                     .execute()
                     .toLong()
             }
@@ -64,7 +64,7 @@ class WordService(
                     .bind("state", word.state)
                     .bind("rank", word.rank)
                     .bind("sense", word.sense.joinToString("|"))
-                    .bind("examples", word.examples.joinToString("|"))
+                    .bind("examples", word.examples.joinToString("|").replace("\\", ""))
                     .execute()
                     .toLong()
             }

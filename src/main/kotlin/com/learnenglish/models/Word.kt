@@ -35,7 +35,7 @@ data class Word(
                 state = WordState.valueOf(map["state"] as String)
                 rank = (map["rank"] as Int).toLong()
                 sense = (map["sense"] as String).parseList()
-                examples = (map["examples"] as String).parseList()
+                examples = (map["examples"] as String).replace("\\", "").parseList()
             }
         }
     }
