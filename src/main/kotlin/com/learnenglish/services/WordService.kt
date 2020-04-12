@@ -260,7 +260,9 @@ class WordService(
         }
         word.state = if (filter) WordState.AUTO_PARSE else WordState.PARSE
 
-        if(findByText(wordText) != null ) {
+        val foundWord = findByText(wordText)
+        if(foundWord != null) {
+            word.collectionId = foundWord.collectionId
             update(word)
         } else {
             create(word)
