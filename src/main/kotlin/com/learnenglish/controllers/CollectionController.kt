@@ -10,6 +10,7 @@ import io.micronaut.validation.Validated
 import com.learnenglish.services.CollectionService
 import com.learnenglish.models.Collection
 import com.learnenglish.services.CategoryService
+import com.learnenglish.services.WordService
 import io.micronaut.http.MutableHttpResponse
 import javax.validation.Valid
 
@@ -18,7 +19,8 @@ import javax.validation.Valid
 @Secured(SecurityRule.IS_ANONYMOUS)
 class CollectionController(
     private val collectionService: CollectionService,
-    private val categoryService: CategoryService
+    private val categoryService: CategoryService,
+    private val wordService: WordService
 ) {
 
     @Get("/list")
@@ -36,6 +38,16 @@ class CollectionController(
 
         return HttpResponse.ok(
             BaseController.Response(status = BaseController.Status.OK.code, payload = words)
+        )
+    }
+
+    @Get("/{id}/words/")
+    @Produces(MediaType.APPLICATION_JSON)
+    fun getWords(id: Long): MutableHttpResponse<BaseController.Response> {
+        val words = wordService.findAllByCollection(id)
+
+        return HttpResponse.ok(
+                BaseController.Response(status = BaseController.Status.OK.code, payload = words)
         )
     }
 

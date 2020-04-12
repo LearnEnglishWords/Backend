@@ -90,6 +90,20 @@ class WordService(
         }
     }
 
+    fun findAllByCollection(collectionId: Long): List<Word>? {
+        return try {
+            db.withHandle<List<Word>, Exception> {
+                it.select("select * from words where collection_id=:collectionId")
+                        .bind("collectionId", collectionId)
+                        .mapToMap()
+                        .list()
+                        .map { Word.parse(it) }
+            }
+        } catch (e: Exception) {
+            null
+        }
+    }
+
     fun getCount(state: WordState? = null): Int? {
         return try {
             db.withHandle<Int, Exception> {
