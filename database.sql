@@ -42,3 +42,9 @@ CREATE TABLE IF NOT EXISTS `categories_words` (
   FOREIGN KEY (`category_id`) REFERENCES categories(id),
   UNIQUE KEY (`word_id`, `category_id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8;
+
+
+CREATE TABLE IF NOT EXISTS `activities` (
+  `uuid` varchar(255) NOT NULL,
+  `timestamp` timestamp NOT NULL
+) ENGINE=InnoDB DEFAULT CHARSET=utf8;
