@@ -34,7 +34,7 @@ class CollectionController(
     @Get("/{id}/categories/")
     @Produces(MediaType.APPLICATION_JSON)
     fun getCategories(id: Long): MutableHttpResponse<BaseController.Response> {
-        val words = categoryService.findAllByCollection(id)
+        val words = categoryService.findAll(id)
 
         return HttpResponse.ok(
             BaseController.Response(status = BaseController.Status.OK.code, payload = words)

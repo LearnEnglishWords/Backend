@@ -21,10 +21,6 @@ interface CategoryDao {
     @SqlUpdate("update categories set name=:name, name_cs=:czechName, icon=:icon  where id=:id")
     fun update(@BindBean category: Category): Int
 
-    @SqlQuery("select * from categories where collection_id=:collectionId")
-    @RegisterBeanMapper(Category::class)
-    fun findAllByCollection(@Bind("collectionId") collectionId: Long): List<Category>
-
     @SqlQuery("select * from categories where id=:id")
     fun findById(@Bind("id") id: Long): Category?
 
@@ -82,26 +78,26 @@ class CategoryService (
         }
     }
 
-    fun findAll(): List<Category>? {
+    fun findAll(collectionId: Long? = null): List<Category>? {
         return try {
             db.withHandle<List<Category>, Exception> {
-                it.select("select * from categories")
-                        .mapToMap()
-                        .list()
-                        .map { Category.parse(it) }
-                        .filter { category ->
-                            category.name != WordType.EXISTENTIAL.value &&
-                            category.name != WordType.DEMONSTRATIVE.value &&
-                            category.name != WordType.ARTICLE.value
-                        }
+                var query = it.select("select * from categories")
+                if (collectionId != null) {
+                    query = it.select("select * from categories where collection_id=:collectionId")
+                            .bind("collectionId", collectionId)
+                }
+                query.mapToMap()
+                    .list()
+                    .map { Category.parse(it) }
+                    .filter { category ->
+                        category.name != WordType.EXISTENTIAL.value &&
+                        category.name != WordType.DEMONSTRATIVE.value &&
+                        category.name != WordType.ARTICLE.value
+                    }
             }
         } catch (e: Exception) {
             null
         }
-    }
-
-    fun findAllByCollection(collectionId: Long): List<Category> {
-        return db.onDemand<CategoryDao>().findAllByCollection(collectionId)
     }
 
     fun findById(id: Long): Category? {
