@@ -1,6 +1,5 @@
 package com.learnenglish.controllers
 
-import com.learnenglish.models.Category
 import io.micronaut.http.HttpResponse
 import io.micronaut.http.MediaType
 import io.micronaut.http.annotation.*
@@ -21,33 +20,33 @@ class CollectionController(
     private val collectionService: CollectionService,
     private val categoryService: CategoryService,
     private val wordService: WordService
-) {
+) : BaseController() {
 
     @Get("/list")
     @Produces(MediaType.APPLICATION_JSON)
-    fun getList(): MutableHttpResponse<BaseController.Response>? {
+    fun getList(): MutableHttpResponse<Response>? {
         return HttpResponse.ok(
-            BaseController.Response(status = BaseController.Status.OK.code, payload = collectionService.findAll())
+            Response(status = Status.OK.code, payload = collectionService.findAll())
         )
     }
 
     @Get("/{id}/categories/")
     @Produces(MediaType.APPLICATION_JSON)
-    fun getCategories(id: Long): MutableHttpResponse<BaseController.Response> {
+    fun getCategories(id: Long): MutableHttpResponse<Response> {
         val words = categoryService.findAll(id)
 
         return HttpResponse.ok(
-            BaseController.Response(status = BaseController.Status.OK.code, payload = words)
+            Response(status = Status.OK.code, payload = words)
         )
     }
 
     @Get("/{id}/words/")
     @Produces(MediaType.APPLICATION_JSON)
-    fun getWords(id: Long, @QueryValue(defaultValue = "false") shuffle: Boolean): MutableHttpResponse<BaseController.Response> {
+    fun getWords(id: Long, @QueryValue(defaultValue = "false") shuffle: Boolean): MutableHttpResponse<Response> {
         val words = wordService.findAllByCollection(id)
 
         return HttpResponse.ok(
-            BaseController.Response(status = BaseController.Status.OK.code, payload = words?.toMutableList().apply {
+            Response(status = Status.OK.code, payload = words?.toMutableList().apply {
                 if (shuffle && !this.isNullOrEmpty()) {
                     this.shuffle()
                 }
