@@ -118,14 +118,19 @@ class CategoryController(
     }
 
     @Get("/{id}/words")
-    fun getCatagoryWords(id: Long, collectionId: Long?): HttpResponse<Response> {
+    fun getCategoryWords(id: Long, collectionId: Long?, @QueryValue(defaultValue = "false") shuffle: Boolean): HttpResponse<Response> {
         val category = categoryService.findById(id)
             ?: return HttpResponse.notFound(Response(status = Status.NOT_FOUND.code, error = ErrorState(message = "Cannot find category with id: $id")))
         var wordList = wordService.findByCategory(categoryId = category.id!!)
         if (collectionId != null)
             wordList = wordList.filter { it.collectionId == collectionId }
 
-        return HttpResponse.ok(Response(status = Status.OK.code, payload = mapOf("count" to wordList.size, "words" to wordList)))
+        return HttpResponse.ok(
+            Response(status = Status.OK.code, payload = mapOf(
+                "count" to wordList.size,
+                "words" to wordList.toMutableList().apply { if (shuffle) { shuffle() } }
+            ))
+        )
     }
 
 

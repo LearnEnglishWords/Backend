@@ -43,11 +43,15 @@ class CollectionController(
 
     @Get("/{id}/words/")
     @Produces(MediaType.APPLICATION_JSON)
-    fun getWords(id: Long): MutableHttpResponse<BaseController.Response> {
+    fun getWords(id: Long, @QueryValue(defaultValue = "false") shuffle: Boolean): MutableHttpResponse<BaseController.Response> {
         val words = wordService.findAllByCollection(id)
 
         return HttpResponse.ok(
-                BaseController.Response(status = BaseController.Status.OK.code, payload = words)
+            BaseController.Response(status = BaseController.Status.OK.code, payload = words?.toMutableList().apply {
+                if (shuffle && !this.isNullOrEmpty()) {
+                    this.shuffle()
+                }
+            })
         )
     }
 
