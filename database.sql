@@ -43,8 +43,13 @@ CREATE TABLE IF NOT EXISTS `categories_words` (
   UNIQUE KEY (`word_id`, `category_id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8;
 
-
 CREATE TABLE IF NOT EXISTS `activities` (
   `uuid` varchar(255) NOT NULL,
   `timestamp` timestamp NOT NULL
+) ENGINE=InnoDB DEFAULT CHARSET=utf8;
+
+CREATE TABLE IF NOT EXISTS `logs` (
+  `uuid` varchar(255) NOT NULL,
+  `timestamp` timestamp NOT NULL,
+  `message` varchar(255) NOT NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8;
