@@ -15,7 +15,7 @@ interface ActivityDao {
     @GetGeneratedKeys
     fun save(@BindBean activity: Activity): Long?
 
-    @SqlQuery("select * from activities where uuid=:uuid")
+    @SqlQuery("select timestamp from activities where uuid=:uuid")
     fun getByUUID(@Bind("uuid") uuid: String): List<Activity>
 }
 
@@ -35,14 +35,9 @@ class ActivityService() {
         }
     }
 
-    fun getUUIDTimestamps(uuid: String): List<String>? {
+    fun getByUUID(uuid: String): List<Activity>? {
         return try {
-            db.withHandle<List<String>, Exception> {
-                it.select("select timestamp from activities where uuid=:uuid")
-                    .bind("uuid", uuid)
-                    .mapTo(String::class.java)
-                    .list()
-            }
+            db.onDemand<ActivityDao>().getByUUID(uuid)
         } catch (x: Exception) {
             null
         }

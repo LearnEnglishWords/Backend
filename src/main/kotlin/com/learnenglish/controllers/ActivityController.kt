@@ -45,7 +45,7 @@ class ActivityController(private val activityService: ActivityService) : BaseCon
     @Get("/")
     @Produces(MediaType.APPLICATION_JSON)
     fun get(@QueryValue uuid: String): MutableHttpResponse<Response>? {
-        val result = activityService.getUUIDTimestamps(uuid)
+        val result = activityService.getByUUID(uuid)
         return if (result != null) {
             HttpResponse.created(
                 Response(status = Status.OK.code, payload = result)
