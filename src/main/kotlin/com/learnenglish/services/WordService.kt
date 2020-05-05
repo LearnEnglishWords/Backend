@@ -15,6 +15,7 @@ import it.skrape.selects.html5.span
 import it.skrape.selects.html5.strong
 import it.skrape.skrape
 import org.slf4j.LoggerFactory
+import java.time.LocalDateTime
 import javax.inject.Singleton
 
 
@@ -36,12 +37,13 @@ class WordService(
         try {
             db.withHandle<Long, Exception> {
                 val mapper = ObjectMapper()
-                it.createUpdate("insert into words (collection_id, text, pronunciation, state, `rank`, sense, examples) values(:collectionId, :text, :pronunciation, :state, :rank, JSON_ARRAY(:sense), JSON_ARRAY(:examples))")
+                it.createUpdate("insert into words (collection_id, text, pronunciation, state, `rank`, updated, sense, examples) values(:collectionId, :text, :pronunciation, :state, :rank, :updated, JSON_ARRAY(:sense), JSON_ARRAY(:examples))")
                     .bind("collectionId", word.collectionId)
                     .bind("text", word.text)
                     .bind("pronunciation", mapper.writeValueAsString(word.pronunciation))
                     .bind("state", word.state)
                     .bind("rank", word.rank)
+                    .bind("updated", word.updated)
                     .bind("sense", word.sense.joinToString("|"))
                     .bind("examples", word.examples.joinToString("|").replace("\\", ""))
                     .execute()
@@ -57,12 +59,13 @@ class WordService(
         val mapper = ObjectMapper()
         return try {
             db.withHandle<Long, Exception> {
-                it.createUpdate("update words set collection_id=:collectionId, text=:text, pronunciation=:pronunciation, state=:state, `rank`=:rank, sense=JSON_ARRAY(:sense), examples=JSON_ARRAY(:examples) where text=:text")
+                it.createUpdate("update words set collection_id=:collectionId, text=:text, pronunciation=:pronunciation, state=:state, `rank`=:rank, updated=:updated, sense=JSON_ARRAY(:sense), examples=JSON_ARRAY(:examples) where text=:text")
                     .bind("collectionId", word.collectionId)
                     .bind("text", word.text)
                     .bind("pronunciation", mapper.writeValueAsString(word.pronunciation))
                     .bind("state", word.state)
                     .bind("rank", word.rank)
+                    .bind("updated", word.updated)
                     .bind("sense", word.sense.joinToString("|"))
                     .bind("examples", word.examples.joinToString("|").replace("\\", ""))
                     .execute()
@@ -81,6 +84,20 @@ class WordService(
                     .bind("offset", offset)
                     .bind("limit", limit)
                     .apply { if (state != null) this.bind("state", state) }
+                    .mapToMap()
+                    .list()
+                    .map { Word.parse(it) }
+            }
+        } catch (e: Exception) {
+            null
+        }
+    }
+
+    fun findUpdated(from: LocalDateTime?): List<Word>? {
+        return try {
+            db.withHandle<List<Word>, Exception> {
+                it.select("select * from words where updated is not null${if(from != null) " and updated > :from" else ""}")
+                    .apply { if (from != null) this.bind("from", from) }
                     .mapToMap()
                     .list()
                     .map { Word.parse(it) }

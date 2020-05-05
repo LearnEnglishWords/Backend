@@ -30,6 +30,7 @@ CREATE TABLE IF NOT EXISTS `words` (
   `rank` mediumint(9) UNSIGNED NOT NULL,
   `sense` JSON NOT NULL,
   `examples` JSON NOT NULL,
+  `updated` timestamp NULL,
   PRIMARY KEY (`id`),
   FOREIGN KEY (`collection_id`) REFERENCES collections(id),
   UNIQUE KEY (`text`)

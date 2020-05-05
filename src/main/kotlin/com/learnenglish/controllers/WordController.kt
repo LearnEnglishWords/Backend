@@ -10,6 +10,7 @@ import io.micronaut.security.rules.SecurityRule
 import io.micronaut.validation.Validated
 import com.learnenglish.services.WordService
 import org.slf4j.LoggerFactory
+import java.time.LocalDateTime
 import javax.validation.Valid
 
 @Validated
@@ -44,6 +45,13 @@ class WordController(private val wordService: WordService) : BaseController() {
         return HttpResponse.ok(
             Response(status = Status.OK.code, payload = word)
         )
+    }
+
+    @Get("/updated")
+    @Produces(MediaType.APPLICATION_JSON)
+    fun getUpdated(@QueryValue from: String?): HttpResponse<Response> {
+        var words = wordService.findUpdated(if (from.isNullOrEmpty()) null else LocalDateTime.parse(from))
+        return HttpResponse.ok(Response(status = Status.OK.code, payload = mapOf("count" to words!!.size, "words" to words)))
     }
 
     @Post("/")

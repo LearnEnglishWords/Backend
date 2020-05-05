@@ -2,6 +2,8 @@ package com.learnenglish.models
 
 import com.fasterxml.jackson.databind.ObjectMapper
 import com.learnenglish.parseList
+import java.sql.Timestamp
+import java.time.LocalDateTime
 import javax.validation.constraints.NotBlank
 import javax.validation.constraints.Size
 
@@ -21,7 +23,8 @@ data class Word(
     var state: WordState = WordState.IMPORT,
     var rank: Long = 0,
     var sense: List<String> = listOf(),
-    var examples: List<String> = listOf()
+    var examples: List<String> = listOf(),
+    var updated: LocalDateTime? = LocalDateTime.now()
 ) : BaseModel(id = null) {
 
     companion object {
@@ -36,6 +39,7 @@ data class Word(
                 rank = (map["rank"] as Int).toLong()
                 sense = (map["sense"] as String).parseList()
                 examples = (map["examples"] as String).replace("\\", "").parseList()
+                updated = (map["updated"] as Timestamp?)?.toLocalDateTime()
             }
         }
     }
