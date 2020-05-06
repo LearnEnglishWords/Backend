@@ -52,5 +52,5 @@ CREATE TABLE IF NOT EXISTS `activities` (
 CREATE TABLE IF NOT EXISTS `logs` (
   `uuid` varchar(255) NOT NULL,
   `timestamp` timestamp NOT NULL,
-  `message` varchar(255) NOT NULL
+  `message` text NOT NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8;
