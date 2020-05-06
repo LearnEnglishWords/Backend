@@ -8,6 +8,7 @@ import org.jdbi.v3.sqlobject.kotlin.onDemand
 import org.jdbi.v3.sqlobject.statement.GetGeneratedKeys
 import org.jdbi.v3.sqlobject.statement.SqlQuery
 import org.jdbi.v3.sqlobject.statement.SqlUpdate
+import java.time.LocalDateTime
 import javax.inject.Singleton
 
 interface LogDao {
@@ -18,17 +19,24 @@ interface LogDao {
     @SqlQuery("select * from logs")
     fun getAll(): List<Log>
 
+    @SqlQuery("select * from logs where timestamp > :from")
+    fun getByTimestamp(@Bind("from") from: LocalDateTime): List<Log>
+
     @SqlQuery("select timestamp, message from logs where uuid=:uuid")
     fun getByUUID(@Bind("uuid") uuid: String): List<Log>
 }
 
 @Singleton
-class LogService() {
+class LogService {
     private val db = DbConfig.getInstance()
 
-    fun getAll(): List<Log>? {
+    fun getAll(from: LocalDateTime?): List<Log>? {
         return try {
-            db.onDemand<LogDao>().getAll()
+            if (from == null) {
+                db.onDemand<LogDao>().getAll()
+            } else {
+                db.onDemand<LogDao>().getByTimestamp(from)
+            }
         } catch (x: Exception) {
             null
         }

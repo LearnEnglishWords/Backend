@@ -9,6 +9,7 @@ import io.micronaut.http.MutableHttpResponse
 import io.micronaut.http.annotation.*
 import io.micronaut.security.annotation.Secured
 import io.micronaut.security.rules.SecurityRule
+import java.time.LocalDateTime
 import javax.validation.Valid
 
 @Validated
@@ -31,8 +32,8 @@ class LogController(private val logService: LogService) : BaseController() {
 
     @Get("/list")
     @Produces(MediaType.APPLICATION_JSON)
-    fun list(): MutableHttpResponse<Response>? {
-        val result =  logService.getAll()
+    fun list(@QueryValue from: String?): MutableHttpResponse<Response>? {
+        val result = logService.getAll(if (from.isNullOrEmpty()) null else LocalDateTime.parse(from))
         return if (result != null) {
             HttpResponse.created(
                 Response(status = Status.OK.code, payload = result)
