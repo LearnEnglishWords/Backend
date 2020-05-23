@@ -92,7 +92,8 @@ class CategoryService (
                     .filter { category ->
                         category.name != WordType.EXISTENTIAL.value &&
                         category.name != WordType.DEMONSTRATIVE.value &&
-                        category.name != WordType.ARTICLE.value
+                        category.name != WordType.ARTICLE.value &&
+                        category.name != "Other"
                     }
             }
         } catch (e: Exception) {
