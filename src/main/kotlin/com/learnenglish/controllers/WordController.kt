@@ -82,8 +82,10 @@ class WordController(private val wordService: WordService) : BaseController() {
     fun remove(id: Long): HttpResponse<Any> {
         val word = wordService.findById(id) ?: return HttpResponse.notFound()
 
-        wordService.delete(word.id!!)
-        return HttpResponse.ok()
+        if (wordService.delete(word.id!!))
+            return HttpResponse.ok()
+        else
+            return HttpResponse.badRequest()
     }
 
     @Get("/parse")
