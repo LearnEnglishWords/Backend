@@ -152,15 +152,16 @@ class WordService(
         }
     }
 
-    fun findByCategory(categoryId: Long): List<Word> {
+    fun findByCategory(categoryId: Long, state: WordState): List<Word> {
         return try {
             db.withHandle<List<Word>, Exception> {
                 it.select("""
                     select * from categories_words cw 
                     join words w on cw.word_id=w.id 
-                    where cw.category_id=:categoryId
+                    where cw.category_id=:categoryId and w.state=:state
                 """)
                 .bind("categoryId", categoryId)
+                .bind("state", state)
                 .mapToMap()
                 .list()
                 .map { Word.parse(it) }

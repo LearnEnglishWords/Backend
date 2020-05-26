@@ -1,6 +1,7 @@
 package com.learnenglish.controllers
 
 import com.learnenglish.models.BaseModel
+import com.learnenglish.models.WordState
 import io.micronaut.http.HttpResponse
 import io.micronaut.http.MediaType
 import io.micronaut.http.annotation.*
@@ -118,10 +119,15 @@ class CategoryController(
     }
 
     @Get("/{id}/words")
-    fun getCategoryWords(id: Long, collectionId: Long?, @QueryValue(defaultValue = "false") shuffle: Boolean): HttpResponse<Response> {
+    fun getCategoryWords(
+        id: Long, 
+        collectionId: Long?,
+        @QueryValue(defaultValue = "false") shuffle: Boolean,
+        @QueryValue(defaultValue = "CORRECT") state: WordState
+    ): HttpResponse<Response> {
         val category = categoryService.findById(id)
             ?: return HttpResponse.notFound(Response(status = Status.NOT_FOUND.code, error = ErrorState(message = "Cannot find category with id: $id")))
-        var wordList = wordService.findByCategory(categoryId = category.id!!)
+        var wordList = wordService.findByCategory(categoryId = category.id!!, state = state)
         if (collectionId != null)
             wordList = wordList.filter { it.collectionId == collectionId }
 
