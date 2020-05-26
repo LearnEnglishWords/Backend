@@ -8,6 +8,7 @@ import io.micronaut.security.rules.SecurityRule
 import io.micronaut.validation.Validated
 import com.learnenglish.services.CollectionService
 import com.learnenglish.models.Collection
+import com.learnenglish.models.WordState
 import com.learnenglish.services.CategoryService
 import com.learnenglish.services.WordService
 import io.micronaut.http.MutableHttpResponse
@@ -42,8 +43,12 @@ class CollectionController(
 
     @Get("/{id}/words/")
     @Produces(MediaType.APPLICATION_JSON)
-    fun getWords(id: Long, @QueryValue(defaultValue = "false") shuffle: Boolean): MutableHttpResponse<Response> {
-        val words = wordService.findAllByCollection(id)
+    fun getWords(
+        id: Long,
+        @QueryValue(defaultValue = "false") shuffle: Boolean,
+        @QueryValue(defaultValue = "CORRECT") state: WordState
+    ): MutableHttpResponse<Response> {
+        val words = wordService.findAllByCollection(id, state)
 
         return HttpResponse.ok(
             Response(status = Status.OK.code, payload = words?.toMutableList().apply {

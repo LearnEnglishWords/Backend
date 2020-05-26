@@ -107,11 +107,12 @@ class WordService(
         }
     }
 
-    fun findAllByCollection(collectionId: Long): List<Word>? {
+    fun findAllByCollection(collectionId: Long, state: WordState): List<Word>? {
         return try {
             db.withHandle<List<Word>, Exception> {
-                it.select("select * from words where collection_id=:collectionId")
+                it.select("select * from words where collection_id=:collectionId and state=:state")
                         .bind("collectionId", collectionId)
+                        .bind("state", state)
                         .mapToMap()
                         .list()
                         .map { Word.parse(it) }
