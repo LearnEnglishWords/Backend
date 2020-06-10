@@ -237,8 +237,12 @@ class WordService(
                             it.examples = findAll { getExamples(filter) }
                         }
                     } catch (e: ElementNotFoundException) {
-                        li {  withClass = "eg"
-                            it.examples = findAll { getExamples(filter) }
+                        try {
+                            li {  withClass = "eg"
+                                it.examples = findAll { getExamples(filter) }
+                            }
+                        } catch (e: ElementNotFoundException) {
+                            it.examples = listOf("")
                         }
                     }
                     try {
