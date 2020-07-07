@@ -10,7 +10,7 @@ import javax.validation.constraints.Size
 
 
 enum class WordState {
-    IMPORT, PARSE, AUTO_PARSE, CORRECT
+    IMPORT, PARSE, AUTO_PARSE, CORRECT, USER_CORRECT
 }
 
 data class Word(
