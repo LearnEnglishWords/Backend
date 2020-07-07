@@ -91,7 +91,7 @@ class WordController(private val wordService: WordService) : BaseController() {
     @Get("/parse")
     @Consumes(MediaType.APPLICATION_JSON)
     fun parse(@QueryValue text: String, @QueryValue(defaultValue = "true") filter: Boolean): HttpResponse<Response> {
-        if(!"([a-z,A-Z])\\w+|([a-z,A-Z])".toRegex().matches(text)) return HttpResponse.badRequest(
+        if(!"([a-z,A-Z]+-{0,1})+".toRegex().matches(text)) return HttpResponse.badRequest(
             Response( status = Status.BAD_REQUEST.code, error = ErrorState(message = "You can use only [a-z,A-Z] characters."))
         )
         val word: Word
@@ -117,7 +117,7 @@ class WordController(private val wordService: WordService) : BaseController() {
     @Get("/find")
     @Consumes(MediaType.APPLICATION_JSON)
     fun find(@QueryValue text: String): HttpResponse<Response> {
-        if(!"([a-z,A-Z])\\w+|([a-z,A-Z])".toRegex().matches(text)) return HttpResponse.badRequest(
+        if(!"([a-z,A-Z]+-{0,1})+".toRegex().matches(text)) return HttpResponse.badRequest(
             Response( status = Status.BAD_REQUEST.code, error = ErrorState(message = "You can use only [a-z,A-Z] characters."))
         )
 
@@ -134,7 +134,7 @@ class WordController(private val wordService: WordService) : BaseController() {
         val result: MutableList<BaseModel> = mutableListOf()
         val wordLines = words.split("\n").filter { it.isNotEmpty() }
         //val regex = """([a-z,A-Z]\w*);(\d+);([a-z])""".toRegex()
-        val regex = """([a-z,A-Z]\w*)""".toRegex()
+        val regex = """([a-z,A-Z]+-{0,1})+""".toRegex()
 
         for (wordLine in wordLines) {
             try {
