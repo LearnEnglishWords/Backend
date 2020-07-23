@@ -270,7 +270,7 @@ class WordService(
                         log.warn("Cannot parse UK pronunciation for word: $wordText.")
                     }
                     span {  withClass = "hw" and "dhw"
-                        it.text = findFirst { text }
+                        it.text = findFirst { text.replace(' ', '-') }
                     }
                 }
             }
@@ -283,7 +283,7 @@ class WordService(
 
         word.pronunciation = pronunciation
         word.sense = skrape {
-            url = "https://glosbe.com/en/cs/$wordText"
+            url = "https://glosbe.com/en/cs/${word.text}"
 
             extract {
                 htmlDocument {
@@ -304,6 +304,13 @@ class WordService(
         } else {
             create(word)
         }
+
+        try {
+            skrape { 
+                url = "http://downloader:5000/download/word/all?text=${word.text}" 
+                extract { }
+            }
+        } catch (e: Exception) { }
 
         return word
     }

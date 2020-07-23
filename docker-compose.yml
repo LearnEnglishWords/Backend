@@ -1,7 +1,7 @@
 version: '3'
 services:
   backend:
-    image: applemann/lew-backend:1.7.2
+    image: applemann/lew-backend:latest
     build: .
     ports:
     - "127.0.0.1:8080:8080"
