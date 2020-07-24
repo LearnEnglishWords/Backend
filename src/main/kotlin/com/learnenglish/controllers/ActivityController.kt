@@ -19,6 +19,11 @@ class ActivityController(private val activityService: ActivityService) : BaseCon
     @Post("/")
     @Consumes(MediaType.APPLICATION_JSON)
     fun create(@Body @Valid activity: Activity): MutableHttpResponse<Response>? {
+        if (activity.uuid == null) {
+            return HttpResponse.badRequest(
+                Response(status = Status.BAD_REQUEST.code)
+            )
+        }
         val result = activityService.save(activity)
         return if (result) {
             HttpResponse.created(
