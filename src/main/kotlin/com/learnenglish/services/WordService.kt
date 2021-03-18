@@ -10,9 +10,7 @@ import it.skrape.extractIt
 import it.skrape.selects.DocElement
 import it.skrape.selects.and
 import it.skrape.selects.eachText
-import it.skrape.selects.html5.li
-import it.skrape.selects.html5.span
-import it.skrape.selects.html5.strong
+import it.skrape.selects.html5.*
 import it.skrape.skrape
 import org.slf4j.LoggerFactory
 import java.time.LocalDateTime
@@ -287,7 +285,7 @@ class WordService(
 
             extract {
                 htmlDocument {
-                    strong {  withClass = "phr"
+                    span {  withClass = "translation__item__phrase"
                         findAll {
                             eachText().getToIndex(10)
                         }
