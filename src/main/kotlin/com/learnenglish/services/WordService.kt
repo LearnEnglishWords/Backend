@@ -236,11 +236,17 @@ class WordService(
                         }
                     } catch (e: ElementNotFoundException) {
                         try {
-                            li {  withClass = "eg"
+                            li {  withClass = "deg"
                                 it.examples = findAll { getExamples(filter) }
                             }
                         } catch (e: ElementNotFoundException) {
-                            it.examples = listOf("")
+                            try {
+                                li {  withClass = "eg"
+                                    it.examples = findAll { getExamples(filter) }
+                                }
+                            } catch (e: ElementNotFoundException) {
+                                it.examples = listOf("")
+                            }
                         }
                     }
                     try {
@@ -285,7 +291,7 @@ class WordService(
 
             extract {
                 htmlDocument {
-                    span {  withClass = "translation__item__phrase"
+                    h3 {  withClass = "translation__item__pharse"
                         findAll {
                             eachText().getToIndex(10)
                         }
@@ -305,7 +311,7 @@ class WordService(
 
         try {
             skrape { 
-                url = "http://downloader:5000/download/word/all?text=${word.text}" 
+                url = "http://jablecnik.com/download/word/all?text=${word.text}" 
                 extract { }
             }
         } catch (e: Exception) { }
